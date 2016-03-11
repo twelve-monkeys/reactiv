@@ -16,7 +16,7 @@
     "virtual",
     "dom"
   ],
-  "author": "aesclepius",
+  "author": "jeremy kothe",
   "license": "ISC",
   "devDependencies": {
     "awesome-typescript-loader": "^0.15.9",
