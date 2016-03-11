@@ -9,7 +9,7 @@ module.exports = {
     devtool: 'inline-source-map',
 
     output: {
-        path: __dirname + "/dist",
+        path: __dirname,
         filename: "[name].js"
     },
 
