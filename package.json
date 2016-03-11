@@ -21,9 +21,6 @@
   "devDependencies": {
     "awesome-typescript-loader": "^0.15.9",
     "jasmine": "^2.4.1",
-    "karma": "^0.13.19",
-    "karma-chrome-launcher": "^0.2.2",
-    "karma-jasmine": "^0.3.6",
     "typescript": "^1.7.5",
     "webpack": "^1.12.11"
   }
