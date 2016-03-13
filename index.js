@@ -136,7 +136,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                case "style":
 	                    if (open_vnode.component)
 	                        throw new Error("components don't have dom nodes, you cannot set styles directly on them");
-	                    if (typeof value === 'string') {
+	                    if (typeof value === "string") {
 	                        node.style.cssText = value;
 	                        break;
 	                    }
@@ -153,7 +153,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    for (var prop in existing_value)
 	                        if (!visited_style[prop]) {
 	                            delete existing_value[prop];
-	                            style[prop] = '';
+	                            style[prop] = "";
 	                        }
 	                    break;
 	                default:
@@ -161,7 +161,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        open_vnode.attrs[name] = value;
 	                    if (name == "className")
 	                        name = "class";
-	                    if (['object', 'function'].indexOf(typeof value) !== -1) {
+	                    if (["object", "function"].indexOf(typeof value) !== -1) {
 	                        if (name.slice(0, 2) === "on" && typeof value === "function")
 	                            (function (fn) {
 	                                var event_name = name.slice(2).toLowerCase();
@@ -276,7 +276,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	                else {
 	                    var doc = open_vnode && open_vnode.node ? open_vnode.node.ownerDocument : document;
-	                    next_vnode = { parent: open_vnode, node: tag === "#text" ? doc.createTextNode('') : doc.createElement(tag), tag: tag.toLowerCase(), key: key, attrs: {}, kids: [] };
+	                    next_vnode = { parent: open_vnode, node: tag === "#text" ? doc.createTextNode("") : doc.createElement(tag), tag: tag.toLowerCase(), key: key, attrs: {}, kids: [] };
 	                }
 	            if (open_vnode) {
 	                kids.splice(replacing_child ? kids.indexOf(replacing_child) : kids.length, 0, next_vnode);
