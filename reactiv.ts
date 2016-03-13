@@ -104,7 +104,7 @@ function _elementOpen(tag: string | Function, key?: string, statics?: any[], n1?
                 if (open_vnode.component)
                     throw new Error("components don't have dom nodes, you cannot set styles directly on them");
 
-                if (typeof value === 'string') {
+                if (typeof value === "string") {
                     node.style.cssText = value;
                     break;
                 }
@@ -124,7 +124,7 @@ function _elementOpen(tag: string | Function, key?: string, statics?: any[], n1?
                 for (let prop in existing_value)
                     if (!visited_style[prop]) {
                         delete existing_value[prop];
-                        style[prop] = '';
+                        style[prop] = "";
                     }
 
                 break;
@@ -135,12 +135,12 @@ function _elementOpen(tag: string | Function, key?: string, statics?: any[], n1?
                 if (name == "className")
                     name = "class";
 
-                if (['object', 'function'].indexOf(typeof value) !== -1) {
+                if (["object", "function"].indexOf(typeof value) !== -1) {
                     if (name.slice(0, 2) === "on" && typeof value === "function")
                         ((fn: (event) => void) => {
                             const event_name = name.slice(2).toLowerCase();
-                            if(existing_value !== fn)
-                                open_vnode.node.removeEventListener(event_name, existing_value);                        
+                            if (existing_value !== fn)
+                                open_vnode.node.removeEventListener(event_name, existing_value);
                             open_vnode.node.addEventListener(event_name, fn);
                         })(value);
                 } else if (!open_vnode.component)
@@ -268,7 +268,7 @@ function sync(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n
                     next_vnode.component.componentWillMount();
             } else {
                 const doc = open_vnode && open_vnode.node ? open_vnode.node.ownerDocument : document;
-                next_vnode = { parent: open_vnode, node: tag === "#text" ? doc.createTextNode('') : doc.createElement(tag as string), tag: (tag as string).toLowerCase(), key, attrs: {}, kids: [] };
+                next_vnode = { parent: open_vnode, node: tag === "#text" ? doc.createTextNode("") : doc.createElement(tag as string), tag: (tag as string).toLowerCase(), key, attrs: {}, kids: [] };
             }
 
         if (open_vnode) {
