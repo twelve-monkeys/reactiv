@@ -6,7 +6,7 @@
   "scripts": {
     "test": "webpack --config webpack.test.config.js && karma start --single-run && del test.js",
     "build": "webpack && tsc -d -p . && del reactiv.js",
-    "publish_patch": "npm run build && npm version patch && npm publish",
+    "publish_patch": "npm run build && npm version patch && git commit ver && npm publish",
     "publish_minor": "npm run build && npm version minor && npm publish"
   },
   "keywords": [
