@@ -1,6 +1,6 @@
 {
   "name": "reactiv",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A react-like incremental vdom renderer",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,6 @@
     "incremental",
     "virtual",
     "dom"
-    
   ],
   "author": "jeremy kothe",
   "license": "ISC",
