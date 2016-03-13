@@ -35,12 +35,12 @@ interface VNode {
     text?: string;
 }
 
-var open_vnode: VNode;
-var next_vnode: VNode;
-var previous_vnode: VNode;
+let open_vnode: VNode;
+let next_vnode: VNode;
+let previous_vnode: VNode;
 
 export function patch(element: Element, fn: () => void) {
-    var node = element["__mirror_view_node"] as VNode;
+    let node = element["__mirror_view_node"] as VNode;
     if (!node)
         element["__mirror_view_node"] = node = {
             parent: null,
@@ -66,11 +66,11 @@ export function elementVoid(tag: string, key?: string, statics?, a1?, a2?, a3?, 
 }
 
 export function text(value: any, formatters?: ((value) => string)[]) {
-    var node = _elementOpen("#text", null, null);
+    const node = _elementOpen("#text", null, null);
     if (node.text !== value) {
-        var formatted = node.text = value;
-        for (var i = 1; i < arguments.length; i++) {
-            var formatter = arguments[i];
+        let formatted = node.text = value;
+        for (let i = 1; i < arguments.length; i++) {
+            const formatter = arguments[i];
             if (formatter)
                 formatted = formatter(formatted);
         }
@@ -138,7 +138,7 @@ function _elementOpen(tag: string | Function, key?: string, statics?: any[], n1?
                 if (['object', 'function'].indexOf(typeof value) !== -1) {
                     if (name.slice(0, 2) === "on" && typeof value === "function")
                         ((fn: (event) => void) => {
-                            var event_name = name.slice(2).toLowerCase();
+                            const event_name = name.slice(2).toLowerCase();
                             if(existing_value !== fn)
                                 open_vnode.node.removeEventListener(event_name, existing_value);                        
                             open_vnode.node.addEventListener(event_name, fn);
@@ -194,7 +194,7 @@ export function elementClose() {
 }
 
 function getProps(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n2?, v2?, n3?, v3?) {
-    var props = {};
+    const props = {};
     if (statics)
         for (let i = 0; i < statics.length; i += 2) {
             let name = statics[i];
@@ -262,12 +262,12 @@ function sync(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n
 
         if (!next_vnode)
             if (typeof tag === "function") {
-                var fn = tag.bind.apply(tag, [null].concat([]));
+                const fn = tag.bind.apply(tag, [null].concat([]));
                 next_vnode = { parent: open_vnode, node: null, tag: tag["name"], key, attrs: {}, component: new fn(), kids: [] };
                 if (next_vnode.component.componentWillMount)
                     next_vnode.component.componentWillMount();
             } else {
-                var doc = open_vnode && open_vnode.node ? open_vnode.node.ownerDocument : document;
+                const doc = open_vnode && open_vnode.node ? open_vnode.node.ownerDocument : document;
                 next_vnode = { parent: open_vnode, node: tag === "#text" ? doc.createTextNode('') : doc.createElement(tag as string), tag: (tag as string).toLowerCase(), key, attrs: {}, kids: [] };
             }
 
@@ -280,7 +280,7 @@ function sync(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n
     open_vnode = next_vnode;
     next_vnode = open_vnode.kids[0];
 
-    var next_props = getProps.apply(null, arguments);
+    const next_props = getProps.apply(null, arguments);
 
     if (open_vnode.component)
         renderComponent(!reuse_next_vnode, next_props);

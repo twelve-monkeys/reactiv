@@ -44,7 +44,7 @@ let lc_componentDidUpdate = 0; // check
 let lc_componentWillUnmount = 0; // check
 let lc_render = 0;// check
 
-var freeze_message = false;
+let freeze_message = false;
 export class lifecycle {
     constructor() {
         lc_methods.push("constructor");
@@ -95,25 +95,25 @@ export class lifecycle {
 }
 
 function simulateClick(element: Element) {
-    var simulateDivClick = document.createEvent('MouseEvents');
+    let simulateDivClick = document.createEvent('MouseEvents');
     simulateDivClick.initMouseEvent('click', true, true, document.defaultView, 0, 0, 0, 0, 0, false, false, false, false, null, null);
     return element.dispatchEvent(simulateDivClick);
 }
 
 describe("a patch", () => {
-    var node: HTMLElement;
-    var starting_html: string;
+    let node: HTMLElement;
+    let starting_html: string;
 
-    var original_properties_of = [];
+    let original_properties_of = [];
 
-    var get_properties = (container) => Object.getOwnPropertyNames(container);
+    let get_properties = (container) => Object.getOwnPropertyNames(container);
 
     beforeEach((done) => {
         starting_html = document.body.innerHTML;
         node = document.createElement("div");
         document.body.appendChild(node);
         setTimeout(() => {
-            var conserve_properties_of = [window, document, document.body];
+            let conserve_properties_of = [window, document, document.body];
             original_properties_of = conserve_properties_of.map(container => get_properties(container))
 
             lc_methods = [];
@@ -135,8 +135,8 @@ describe("a patch", () => {
         document.body.removeChild(node);
         expect(document.body.innerHTML.trim()).toBe(starting_html.trim());
 
-        var conserve_properties_of = [window, document, document.body];
-        var new_properties_of = conserve_properties_of.map(container => get_properties(container))
+        let conserve_properties_of = [window, document, document.body];
+        let new_properties_of = conserve_properties_of.map(container => get_properties(container))
 
         expect(new_properties_of).toEqual(original_properties_of);
     });
@@ -190,13 +190,13 @@ describe("a patch", () => {
     });
 
     it("doesn't re-add the same div", () => {
-        var fn = () =>
+        const fn = () =>
             jsx.patch(node, () => {
                 jsx.elementOpen("div", null, null);
                 jsx.elementClose();
             });
 
-        for (var i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
             fn();
             expect(node.outerHTML).toBe("<div><div></div></div>");
         }
@@ -212,7 +212,7 @@ describe("a patch", () => {
     });
 
     it("mutates attributes", () => {
-        var style = { color: 'red' } as any;
+        const style = { color: 'red' } as any;
         jsx.patch(node, () => {
             jsx.elementOpen("div", null, null, 'id', 'the_id', "style", style);
             jsx.elementClose();
@@ -282,10 +282,10 @@ describe("a patch", () => {
     });
 
     it("adds event handlers", () => {
-        var prevent_click_default = false;
-        var count = 0;
+        let prevent_click_default = false;
+        let count = 0;
 
-        var test_click = (event) => {
+        const test_click = (event) => {
             count++;
             if (prevent_click_default)
                 event.preventDefault();
@@ -297,12 +297,12 @@ describe("a patch", () => {
 
         expect(node.outerHTML).toBe('<div><div></div></div>');
 
-        var cancelled = !simulateClick(node.children[0]);
+        let cancelled = !simulateClick(node.children[0]);
         expect(cancelled).toBe(false);
         expect(count).toBe(1);
 
         prevent_click_default = true;
-        var cancelled = !simulateClick(node.children[0]);
+        cancelled = !simulateClick(node.children[0]);
         expect(cancelled).toBe(true);
         expect(count).toBe(2);
 
@@ -311,16 +311,16 @@ describe("a patch", () => {
         });
 
         prevent_click_default = false;
-        var cancelled = !simulateClick(node.children[0]);
+        cancelled = !simulateClick(node.children[0]);
         expect(cancelled).toBe(false);
         expect(count).toBe(3);
     });
 
     it("removes event handlers", () => {
-        var prevent_click_default = false;
-        var count = 0;
+        let prevent_click_default = false;
+        let count = 0;
 
-        var test_click = (event) => {
+        const test_click = (event) => {
             count++;
             if (prevent_click_default)
                 event.preventDefault();
@@ -332,12 +332,12 @@ describe("a patch", () => {
 
         expect(node.outerHTML).toBe('<div><div></div></div>');
 
-        var cancelled = !simulateClick(node.children[0]);
+        let cancelled = !simulateClick(node.children[0]);
         expect(cancelled).toBe(false);
         expect(count).toBe(1);
 
         prevent_click_default = true;
-        var cancelled = !simulateClick(node.children[0]);
+        cancelled = !simulateClick(node.children[0]);
         expect(cancelled).toBe(true);
         expect(count).toBe(2);
 
@@ -345,19 +345,19 @@ describe("a patch", () => {
             jsx.elementVoid("div", null, null);
         });
 
-        var cancelled = !simulateClick(node.children[0]);
+        cancelled = !simulateClick(node.children[0]);
         expect(cancelled).toBe(false);
         expect(count).toBe(2);
     });
 
     it("changes event handlers", () => {
-        var count = 0;
+        let count = 0;
 
-        var test_click = (event) => {
+        const test_click = (event) => {
             count++;
         }
 
-        var test_click2 = (event) => {
+        const test_click2 = (event) => {
             count += 100;
             event.preventDefault();
         }
@@ -367,7 +367,7 @@ describe("a patch", () => {
         });
 
         expect(node.outerHTML).toBe('<div><div></div></div>');
-        var cancelled = !simulateClick(node.children[0]);
+        let cancelled = !simulateClick(node.children[0]);
         expect(cancelled).toBe(false);
         expect(count).toBe(1);
 
@@ -375,7 +375,7 @@ describe("a patch", () => {
             jsx.elementVoid("div", null, ["onClick", test_click2]);
         });
 
-        var cancelled = !simulateClick(node.children[0]);
+        cancelled = !simulateClick(node.children[0]);
         expect(cancelled).toBe(true);
         expect(count).toBe(101);
     });
@@ -498,7 +498,7 @@ describe("a patch", () => {
     });
 
     it("recognises nested components", () => {
-        var start = new Date().getTime();
+        const start = new Date().getTime();
 
         jsx.patch(node, () => {
             jsx.elementVoid(important as any, null, null, "importance", 7, "name", "bond, jimmy-bob melon-field bond");
@@ -508,16 +508,16 @@ describe("a patch", () => {
     });
 
     it("is fast", () => {
-        var start = new Date().getTime();
+        const start = new Date().getTime();
 
         const iterations = 10000;
-        for (var i = 0; i < iterations; i++) {
+        for (let i = 0; i < iterations; i++) {
             jsx.patch(node, () => {
                 jsx.elementVoid(important as any, null, null, "importance", i % 10, "name", "bond, jimmy-bob " + (i % 2 ? "melon-field" : "princess") + " bond");
             });
         }
 
-        var duration = new Date().getTime() - start;
+        const duration = new Date().getTime() - start;
 
         console.log("benchmark: " + iterations + " took " + duration + " ms = " + (Math.ceil(duration / iterations * 10000) / 10) + " us per");
         expect(duration).toBeLessThan(250);
