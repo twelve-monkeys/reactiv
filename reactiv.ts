@@ -132,7 +132,7 @@ function _elementOpen(tag: string | Function, key?: string, statics?: any[], n1?
                 if (existing_value !== value)
                     open_vnode.attrs[name] = value;
 
-                if (name == "className")
+                if (name === "className")
                     name = "class";
 
                 if (["object", "function"].indexOf(typeof value) !== -1) {
