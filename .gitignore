@@ -48,5 +48,5 @@ Temporary Items
 
 node_modules
 *.log
-index.js
-test.js
+dist
+output

@@ -511,10 +511,10 @@ describe("a patch", () => {
         const start = new Date().getTime();
 
         const iterations = 10000;
-        for (let i = 0; i < iterations; i++) {
-            jsx.patch(node, () => {
-                jsx.elementVoid(important as any, null, null, "importance", i % 10, "name", "bond, jimmy-bob " + (i % 2 ? "melon-field" : "princess") + " bond");
-            });
+        let i = 0;
+        while(i < iterations) {
+            jsx.patch(node, () => 
+                jsx.elementVoid(important as any, null, null, "importance", (i++) % 10, "name", "bond, jimmy-bob " + (i % 2 ? "melon-field" : "princess") + " bond"));
         }
 
         const duration = new Date().getTime() - start;

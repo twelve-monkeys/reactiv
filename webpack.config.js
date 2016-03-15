@@ -1,4 +1,5 @@
 var ForkCheckerPlugin = require('awesome-typescript-loader').ForkCheckerPlugin;
+var path = require('path');
 
 module.exports = {
     resolve: {
@@ -6,8 +7,8 @@ module.exports = {
     },
     target: "web",
     output: {
-        path: __dirname,
-        filename: "index.js",
+        path: path.join(__dirname, "dist"),
+        filename: "reactiv.js",
         library: 'shared-components',
         libraryTarget: 'umd'
     },

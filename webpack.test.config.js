@@ -9,14 +9,14 @@ module.exports = {
     devtool: 'inline-source-map',
 
     output: {
-        path: __dirname,
+        path: path.join(path.join(__dirname, "test"), "output"),
         filename: "[name].js"
     },
 
     entry: {
-        test: "./spec/dom/Spec.ts"
+        test: "./test/dom/Spec.ts"
     },
-    
+
     module: {
         loaders: [
             {
@@ -25,21 +25,11 @@ module.exports = {
             },
             {
                 test: /\.tsx$/,
-                loader: 'babel-loader!awesome-typescript-loader?useBabel=false&forkChecker=true'
+                loader: 'babel-loader!awesome-typescript-loader&forkChecker=true'
             }
-            //   ,
-            //   {
-            //     test: /\.jsx$/,
-            //     loader: 'babel-loader'
-            //   }
         ]
     },
     plugins: [
-        new ForkCheckerPlugin(),
-        // new ClosureCompilerPlugin({
-        //   language_in: 'ECMASCRIPT6',
-        //   language_out: 'ECMASCRIPT5',
-        //   compilation_level: 'ADVANCED'
-        // })
+        new ForkCheckerPlugin()
     ]
 };
