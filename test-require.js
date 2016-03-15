@@ -1,2 +1,2 @@
 var reactiv = require("reactiv");
-console.obj(reactiv)
+console.dir(reactiv)

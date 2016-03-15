@@ -40,9 +40,9 @@ let next_vnode: VNode;
 let previous_vnode: VNode;
 
 export function patch(element: Element, fn: () => void) {
-    let node = element["__mirror_view_node"] as VNode;
+    let node = element["__reactiv_view_node"] as VNode;
     if (!node)
-        element["__mirror_view_node"] = node = {
+        element["__reactiv_view_node"] = node = {
             parent: null,
             tag: element.nodeName.toLowerCase(),
             node: element,
@@ -83,7 +83,65 @@ export function elementOpen(tag: string | Function, key?: string, statics?: any[
     _elementOpen.apply(null, arguments);
 }
 
+function sync_arg(node: HTMLElement, name: string, value: any) {
+    if (value === null || value === undefined)
+        return false;
+
+    let existing_value = open_vnode.attrs[name];
+    switch (name) {
+        case "style":
+            if (open_vnode.component)
+                throw new Error("components don't have dom nodes, you cannot set styles directly on them");
+
+            if (typeof value === "string") {
+                node.style.cssText = value;
+                break;
+            }
+
+            const style = node.style;
+
+            const visited_style: { [name: string]: boolean } = {};
+            for (let prop in <Object>value) {
+                const prop_value = value[prop];
+                visited_style[prop] = true;
+                if (!existing_value || existing_value[prop] !== prop_value) {
+                    style[prop] = prop_value;
+                    (open_vnode.attrs[name] = existing_value = existing_value || {})[prop] = prop_value;
+                }
+            }
+
+            for (let prop in existing_value)
+                if (!visited_style[prop]) {
+                    delete existing_value[prop];
+                    style[prop] = "";
+                }
+
+            break;
+        default:
+            if (existing_value !== value)
+                open_vnode.attrs[name] = value;
+
+            if (name === "className")
+                name = "class";
+
+            if (["object", "function"].indexOf(typeof value) !== -1) {
+                if (name.slice(0, 2) === "on" && typeof value === "function")
+                    ((fn: (event) => void) => {
+                        const event_name = name.slice(2).toLowerCase();
+                        if (existing_value !== fn)
+                            open_vnode.node.removeEventListener(event_name, existing_value);
+                        open_vnode.node.addEventListener(event_name, fn);
+                    })(value);
+            } else if (!open_vnode.component)
+                node.setAttribute(name, value);
+            break;
+    }
+    return true;
+};
+
+
 function _elementOpen(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n2?, v2?, n3?, v3?) {
+
     sync.apply(null, arguments);
 
     //    if (open_vnode.component)
@@ -92,69 +150,14 @@ function _elementOpen(tag: string | Function, key?: string, statics?: any[], n1?
     const visited = {};
     let node = open_vnode.node as HTMLElement;
 
-    const sync_arg = (name: string, value: any) => {
-        if (value === null || value === undefined)
-            return;
-
-        visited[name] = true;
-
-        let existing_value = open_vnode.attrs[name];
-        switch (name) {
-            case "style":
-                if (open_vnode.component)
-                    throw new Error("components don't have dom nodes, you cannot set styles directly on them");
-
-                if (typeof value === "string") {
-                    node.style.cssText = value;
-                    break;
-                }
-
-                const style = node.style;
-
-                const visited_style: { [name: string]: boolean } = {};
-                for (let prop in <Object>value) {
-                    const prop_value = value[prop];
-                    visited_style[prop] = true;
-                    if (!existing_value || existing_value[prop] !== prop_value) {
-                        style[prop] = prop_value;
-                        (open_vnode.attrs[name] = existing_value = existing_value || {})[prop] = prop_value;
-                    }
-                }
-
-                for (let prop in existing_value)
-                    if (!visited_style[prop]) {
-                        delete existing_value[prop];
-                        style[prop] = "";
-                    }
-
-                break;
-            default:
-                if (existing_value !== value)
-                    open_vnode.attrs[name] = value;
-
-                if (name === "className")
-                    name = "class";
-
-                if (["object", "function"].indexOf(typeof value) !== -1) {
-                    if (name.slice(0, 2) === "on" && typeof value === "function")
-                        ((fn: (event) => void) => {
-                            const event_name = name.slice(2).toLowerCase();
-                            if (existing_value !== fn)
-                                open_vnode.node.removeEventListener(event_name, existing_value);
-                            open_vnode.node.addEventListener(event_name, fn);
-                        })(value);
-                } else if (!open_vnode.component)
-                    node.setAttribute(name, value);
-                break;
-        }
-    };
-
     if (statics)
         for (let i = 0; i < statics.length; i += 2)
-            sync_arg(statics[i], statics[i + 1]);
+        if(sync_arg(node, statics[i], statics[i + 1]))
+            visited[statics[i]] = true;
 
     for (let i = 3; i < arguments.length; i += 2)
-        sync_arg(arguments[i], arguments[i + 1]);
+        if(sync_arg(node, arguments[i], arguments[i + 1]))
+            visited[arguments[i]] = true;
 
     for (let name in open_vnode.attrs)
         if (!visited[name]) {
@@ -290,7 +293,7 @@ function sync(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n
             if (!previous_vnode)
                 throw new Error("component didn't call any elements");
             open_vnode.node = previous_vnode.node;
-            open_vnode.node["__mirror_view_node"] = open_vnode;
+            open_vnode.node["__reactiv_view_node"] = open_vnode;
         }
 
         if (parent_node && open_vnode.node) {
