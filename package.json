@@ -21,7 +21,7 @@
   "license": "ISC",
   "devDependencies": {
     "awesome-typescript-loader": "^0.15.9",
-    "jasmine": "^2.4.1",
+    "jasmine-core": "^2.4.1",
     "karma-phantomjs-launcher": "^1.0.0",
     "typescript": "^1.7.5",
     "karma-jasmine": "^0.3.8",
