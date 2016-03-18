@@ -22,10 +22,11 @@
   "devDependencies": {
     "awesome-typescript-loader": "^0.15.9",
     "jasmine-core": "^2.4.1",
-    "karma-phantomjs-launcher": "^1.0.0",
-    "typescript": "^1.7.5",
+    "karma": "^0.13.22",
     "karma-jasmine": "^0.3.8",
-    "webpack": "^1.12.14",
-    "webpack-dev-server": "^1.14.1"
+    "karma-phantomjs-launcher": "^1.0.0",
+    "phantomjs-prebuilt": "^2.1.5",
+    "typescript": "^1.7.5",
+    "webpack": "^1.12.14"
   }
 }

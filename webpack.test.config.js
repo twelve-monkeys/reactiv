@@ -3,7 +3,7 @@ var path = require('path');
 
 module.exports = {
     resolve: {
-        extensions: ['', '.ts', '.tsx', '.webpack.js', '.web.js']
+        extensions: ['', '.ts', '.tsx']
     },
 
     devtool: 'inline-source-map',
@@ -22,10 +22,6 @@ module.exports = {
             {
                 test: /\.ts$/,
                 loader: 'awesome-typescript-loader'
-            },
-            {
-                test: /\.tsx$/,
-                loader: 'babel-loader!awesome-typescript-loader&forkChecker=true'
             }
         ]
     },

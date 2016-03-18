@@ -1,6 +1,6 @@
 import * as jsx from "../../reactiv";
 
-interface messageProps {
+export interface messageProps {
     importance: number;
     message: string;
 }
@@ -14,12 +14,12 @@ export class message extends jsx.Component<messageProps, void> {
     }
 }
 
-interface importantProps {
+export interface importantProps {
     importance: number;
     name: string;
 }
 
-interface importantState {
+export interface importantState {
     tired: boolean;
 }
 
