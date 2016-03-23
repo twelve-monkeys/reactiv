@@ -2,11 +2,11 @@
   "name": "reactiv",
   "version": "0.3.2",
   "description": "A react-like incremental vdom renderer",
-  "main": "./dist/reactiv.js",
+  "main": "lib/reactiv.js",
   "scripts": {
     "int": "tslint reactiv.ts",
-    "build": "tsc -d -p . --outDir dist && webpack",
-    "test": "webpack --config webpack.test.config.js && karma start --single-run && npm run build && npm install -g . && npm ls -g && cd test && node test-require.js && cd .. && npm remove -g .",
+    "build": "tsc -d -p . --outDir lib && webpack",
+    "test": "webpack --config webpack.test.config.js && karma start --single-run && npm run build && npm install -g . && npm ls -g && node test-require.js && npm remove -g .",
     "publish_patch": "npm run build && npm version patch && npm publish",
     "publish_minor": "npm run build && npm version minor && npm publish"
   },

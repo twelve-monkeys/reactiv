@@ -7,7 +7,7 @@ module.exports = {
     },
     target: "web",
     output: {
-        path: path.join(__dirname, "dist"),
+        path: path.join(__dirname, "lib"),
         filename: "reactiv.js",
         library: 'shared-components',
         libraryTarget: 'umd'
