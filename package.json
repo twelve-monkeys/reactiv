@@ -7,7 +7,7 @@
   "scripts": {
     "int": "tslint reactiv.ts",
     "build": "tsc -d -p . --outDir lib && webpack",
-    "test": "webpack --config webpack.test.config.js && karma start --single-run",
+    "test": "webpack --config webpack.test.config.js && karma start --single-run && npm run test-require",
     "test-chrome": "webpack --config webpack.test.config.js && karma start --single-run --browsers Chrome && npm run test-require",
     "test-require": "npm run build && npm install -g . && npm ls -g && cd test && node test-require.js && cd .. && npm remove -g .",
     "publish-patch": "npm run build && npm version patch && npm publish",
