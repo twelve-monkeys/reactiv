@@ -8,8 +8,8 @@
     "int": "tslint reactiv.ts",
     "build": "tsc -d -p . --outDir lib && webpack",
     "test": "webpack --config webpack.test.config.js && karma start --single-run",
-    "test-chrome": "webpack --config webpack.test.config.js && karma start --single-run --browsers Chrome",
-    "test-require": "npm run build && npm install -g . && npm ls -g && node test-require.js && npm remove -g .",
+    "test-chrome": "webpack --config webpack.test.config.js && karma start --single-run --browsers Chrome && npm run test-require",
+    "test-require": "npm run build && npm install -g . && npm ls -g && cd test && node test-require.js && cd .. && npm remove -g .",
     "publish-patch": "npm run build && npm version patch && npm publish",
     "publish-minor": "npm run build && npm version minor && npm publish"
   },
