@@ -13,7 +13,6 @@ module.exports = function(config) {
       'test/output/test.js'
     ],
 
-
     // list of files to exclude
     exclude: [
     ],
@@ -28,8 +27,14 @@ module.exports = function(config) {
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress', 'junit'],
-
+    reporters: ['junit'],
+    junitReporter: {
+      outputDir: '$CIRCLE_TEST_REPORTS/Karma', // results will be saved as $outputDir/$browserName.xml
+      suite: '', // suite will become the package name attribute in xml testsuite element
+      useBrowserName: true, // add browser name to report and classes names
+      nameFormatter: undefined, // function (browser, result) to customize the name attribute in xml testcase element
+      classNameFormatter: undefined // function (browser, result) to customize the classname attribute in xml testcase element
+    },
 
     // web server port
     port: 9876,
