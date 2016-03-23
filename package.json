@@ -3,12 +3,15 @@
   "version": "0.3.2",
   "description": "A react-like incremental vdom renderer",
   "main": "lib/reactiv.js",
+  "typings": "./lib/reactiv.d.ts",
   "scripts": {
     "int": "tslint reactiv.ts",
     "build": "tsc -d -p . --outDir lib && webpack",
-    "test": "webpack --config webpack.test.config.js && karma start --single-run && npm run build && npm install -g . && npm ls -g && node test-require.js && npm remove -g .",
-    "publish_patch": "npm run build && npm version patch && npm publish",
-    "publish_minor": "npm run build && npm version minor && npm publish"
+    "test": "webpack --config webpack.test.config.js && karma start --single-run",
+    "test-chrome": "webpack --config webpack.test.config.js && karma start --single-run --browsers Chrome",
+    "test-require": "npm run build && npm install -g . && npm ls -g && node test-require.js && npm remove -g .",
+    "publish-patch": "npm run build && npm version patch && npm publish",
+    "publish-minor": "npm run build && npm version minor && npm publish"
   },
   "keywords": [
     "react",
