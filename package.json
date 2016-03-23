@@ -1,6 +1,6 @@
 {
   "name": "reactiv",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "A react-like incremental vdom renderer",
   "main": "./dist/reactiv.js",
   "scripts": {
