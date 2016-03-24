@@ -9,7 +9,7 @@ module.exports = {
     output: {
         path: path.join(__dirname, "lib"),
         filename: "reactiv.js",
-        library: 'shared-components',
+        library: '',
         libraryTarget: 'commonjs'
     },
     entry: "./reactiv.ts",
