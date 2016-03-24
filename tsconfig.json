@@ -2,7 +2,7 @@
     "compilerOptions": {
         "target":"es3",
         "jsx": "preserve",
-        "module": "amd",
+        "module": "commonjs",
         "declaration": true
     },
     "exclude": [
