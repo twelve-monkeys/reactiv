@@ -17,7 +17,7 @@
       // "npm test"
       "taskName": "run",
       "isBuildCommand": true,
-      "args": ["test"],
+      "args": ["test-chrome"],
       "isTestCommand": true
     },
     {
