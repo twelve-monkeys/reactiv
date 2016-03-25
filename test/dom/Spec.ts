@@ -1,3 +1,5 @@
+/// <reference path="../../typings/tsd.d.ts" />
+
 import * as jsx from "../../reactiv";
 
 export interface messageProps {

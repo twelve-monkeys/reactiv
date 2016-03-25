@@ -2,6 +2,9 @@
   "name": "reactiv",
   "description": "A react-like incremental vdom renderer",
   "main": "./lib/reactiv.js",
+  "typescript": {
+		"definition": "lib/reactiv.d.ts"
+	},
   "authors": [
     "jeremy kothe"
   ],
