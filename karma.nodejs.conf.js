@@ -10,7 +10,7 @@ module.exports = function(config) {
     frameworks: ['jasmine'],
     // list of files / patterns to load in the browser
     files: [
-      'test/output/test.js'
+      'test/lib/tests-nodejs.js'
     ],
 
     // list of files to exclude

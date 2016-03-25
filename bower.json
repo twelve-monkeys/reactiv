@@ -1,7 +1,7 @@
 {
   "name": "reactiv",
   "description": "A react-like incremental vdom renderer",
-  "main": "./lib/reactiv-amd.js",
+  "main": "./lib/reactiv.js",
   "authors": [
     "jeremy kothe"
   ],

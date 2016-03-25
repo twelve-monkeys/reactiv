@@ -9,8 +9,8 @@ module.exports = {
     devtool: 'inline-source-map',
 
     output: {
-        path: path.join(path.join(__dirname, "test"), "output"),
-        filename: "[name].js"
+        path: path.join(path.join(__dirname, "test"), "lib"),
+        filename: "tests-browser.js"
     },
 
     entry: {

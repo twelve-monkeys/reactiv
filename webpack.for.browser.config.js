@@ -9,8 +9,8 @@ module.exports = {
     output: {
         path: path.join(__dirname, "lib"),
         filename: "reactiv.js",
-        library: '',
-        libraryTarget: 'commonjs'
+        library: 'reactiv',
+        libraryTarget: 'amd'
     },
     entry: "./reactiv.ts",
     module: {
