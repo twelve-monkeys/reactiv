@@ -1,24 +1,32 @@
 interface IComponent {
-    componentWillMount?: () => void;
-    componentDidMount?: () => void;
-    componentWillUnmount?: () => void;
-    componentWillUpdate?: () => void;
-    componentDidUpdate?: () => void;
-    componentWillReceiveProps: (next_props: any) => void;
-    shouldComponentUpdate: () => boolean;
-    render: () => void;
+    componentWillMount?: (props?: any, state?: any) => void;
+    componentDidMount?: (props?: any, state?: any) => void;
+    componentWillUnmount?: (props?: any, state?: any) => void;
+    componentWillUpdate?: (next_props?: any, next_state?: any) => void;
+    componentDidUpdate?: (props?: any, state?: any) => void;
+    componentWillReceiveProps: (next_props: any, next_state?: any) => void;
+    shouldComponentUpdate: (next_props?: any, next_state?: any) => boolean;
+    render: (props?: any, state?: any) => any;
     props: any;
+    state: any;
+    getState(): any;
+    setState(state: any);
 }
 
 export class Component<P, S> {
     state: S;
-    constructor(public props: P) { }
-    componentWillMount() { };
-    componentDidMount() { };
-    componentWillUnmount() { };
-    shouldComponentUpdate() { return true; }
-    componentWillReceiveProps(next_props: any) { };
+    constructor(public props: P) {
+        <IComponent>this; // ninja implements without needing to export
+    }
+    componentWillMount(props?: any, state?: any) { };
+    componentDidMount(props?: any, state?: any) { };
+    componentWillUnmount(props?: any, state?: any) { };
+    shouldComponentUpdate(next_props?: any, next_state?: any) { return true; }
+    componentWillReceiveProps(next_props?: any, next_state?: any) { };
     render() { };
+    getState() {
+        return this.state;
+    }
     setState(state: S) {
         this.state = state;
     }
@@ -152,11 +160,11 @@ function _elementOpen(tag: string | Function, key?: string, statics?: any[], n1?
 
     if (statics)
         for (let i = 0; i < statics.length; i += 2)
-        if(sync_arg(node, statics[i], statics[i + 1]))
-            visited[statics[i]] = true;
+            if (sync_arg(node, statics[i], statics[i + 1]))
+                visited[statics[i]] = true;
 
     for (let i = 3; i < arguments.length; i += 2)
-        if(sync_arg(node, arguments[i], arguments[i + 1]))
+        if (sync_arg(node, arguments[i], arguments[i + 1]))
             visited[arguments[i]] = true;
 
     for (let name in open_vnode.attrs)
@@ -197,6 +205,9 @@ export function elementClose() {
 }
 
 function getProps(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n2?, v2?, n3?, v3?) {
+    open_vnode = next_vnode;
+    next_vnode = open_vnode.kids[0];
+
     const props = {};
     if (statics)
         for (let i = 0; i < statics.length; i += 2) {
@@ -216,98 +227,111 @@ function getProps(tag: string | Function, key?: string, statics?: any[], n1?, v1
     return props;
 }
 
-function renderComponent(is_new, next_props) {
-    open_vnode.component.props = {};
+function call(node: VNode, fn: string, ...args: any[]): any {
+    return fn && node && node.component && node.component[fn] ? node.component[fn].apply(open_vnode.component, args) : undefined;
+}
 
-    if (!is_new) {
-        if (open_vnode.component.componentWillReceiveProps)
-            open_vnode.component.componentWillReceiveProps(next_props);
+function renderComponent(is_new, next_props) {
+    if (is_new) {
+        call(open_vnode, "render");
+        return;
     }
 
+    open_vnode.component.props = open_vnode.component.props || {};
+    call(open_vnode, "componentWillReceiveProps", next_props, open_vnode.component.state);
     open_vnode.component.props = next_props;
 
-    if (!is_new) {
-        if (open_vnode.component.shouldComponentUpdate && !open_vnode.component.shouldComponentUpdate()) {
-            previous_vnode = next_vnode;
-            next_vnode = open_vnode.kids[open_vnode.kids.indexOf(previous_vnode) + 1];
-        } else {
-            if (open_vnode.component.componentWillUpdate)
-                open_vnode.component.componentWillUpdate();
+    if (call(open_vnode, "shouldComponentUpdate", next_props) === false) {
+        previous_vnode = next_vnode;
+        next_vnode = open_vnode.kids[open_vnode.kids.indexOf(previous_vnode) + 1];
+        return;
+    }
 
-            open_vnode.component.render();
-
-            if (open_vnode.component.componentDidUpdate)
-                open_vnode.component.componentDidUpdate();
-        }
-    } else
-        open_vnode.component.render();
+    call(open_vnode, "componentWillUpdate", open_vnode.component.props, open_vnode.component.state);
+    call(open_vnode, "render");
+    call(open_vnode, "componentDidUpdate", open_vnode.component.props, open_vnode.component.state);
 }
 
 function sync(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n2?, v2?, n3?, v3?) {
     previous_vnode = null;
 
-    let reuse_next_vnode = next_vnode && next_vnode.key === key;
-    if (reuse_next_vnode)
+    let reuse_vnode = next_vnode && next_vnode.key === key;
+    if (reuse_vnode)
         if (typeof tag === "string")
-            reuse_next_vnode = next_vnode.tag === tag || next_vnode.tag === tag.toLowerCase();
+            reuse_vnode = next_vnode.tag === tag || next_vnode.tag === tag.toLowerCase();
         else
-            reuse_next_vnode = next_vnode.component && next_vnode.component.constructor["name"] === tag["name"];
+            reuse_vnode = next_vnode.component && next_vnode.component.constructor["name"] === tag["name"];
 
     let replacing_child: VNode;
     let parent_node: Node;
 
     const kids = open_vnode ? open_vnode.kids : null;
 
-    if (!reuse_next_vnode) {
-        replacing_child = next_vnode;
-
-        next_vnode = key && open_vnode ? kids.filter(c => c.key === key)[0] : null;
-
-        if (!next_vnode)
-            if (typeof tag === "function") {
-                const fn = tag.bind.apply(tag, [null].concat([]));
-                next_vnode = { parent: open_vnode, node: null, tag: tag["name"], key, attrs: {}, component: new fn(), kids: [] };
-                if (next_vnode.component.componentWillMount)
-                    next_vnode.component.componentWillMount();
-            } else {
-                const doc = open_vnode && open_vnode.node ? open_vnode.node.ownerDocument : document;
-                next_vnode = { parent: open_vnode, node: tag === "#text" ? doc.createTextNode("") : doc.createElement(tag as string), tag: (tag as string).toLowerCase(), key, attrs: {}, kids: [] };
-            }
-
-        if (open_vnode) {
-            kids.splice(replacing_child ? kids.indexOf(replacing_child) : kids.length, 0, next_vnode);
-            parent_node = open_vnode.node;
-        }
+    if (reuse_vnode) {
+        const next_props = getProps.apply(null, arguments);
+        if (open_vnode.component)
+            renderComponent(!reuse_vnode, next_props);
+        return;
     }
+    
+    replacing_child = next_vnode;
 
-    open_vnode = next_vnode;
-    next_vnode = open_vnode.kids[0];
+    next_vnode = key && open_vnode ? kids.filter(c => c.key === key)[0] : null;
+    
+    var create_component = false;
+    
+    if (!next_vnode)
+        if (typeof tag === "function") {
+            next_vnode = { parent: open_vnode, node: null, tag: tag["name"], key, attrs: {}, component:null, kids: [] };
+            create_component = true;
+        } else {
+            const doc = open_vnode && open_vnode.node ? open_vnode.node.ownerDocument : document;
+            next_vnode = { parent: open_vnode, node: tag === "#text" ? doc.createTextNode("") : doc.createElement(tag as string), tag: (tag as string).toLowerCase(), key, attrs: {}, kids: [] };
+        }
 
+    if (open_vnode) {
+        kids.splice(replacing_child ? kids.indexOf(replacing_child) : kids.length, 0, next_vnode);
+        parent_node = open_vnode.node;        
+    }
+    
     const next_props = getProps.apply(null, arguments);
+    
+    if(create_component) {
+        const fn = (tag as Function).bind.apply(tag, [null].concat([]));
+        open_vnode.component =  new fn();
+        open_vnode.component.props = next_props;
+        open_vnode.component.state = open_vnode.component.state || call(open_vnode, "getState");
+        console.log("====");
+        console.log(open_vnode.component.state);
+        call(open_vnode, "componentWillMount");
+    }
 
     if (open_vnode.component)
-        renderComponent(!reuse_next_vnode, next_props);
+        renderComponent(!reuse_vnode, next_props);
 
-    if (!reuse_next_vnode) {
-        if (open_vnode.component) {
-            if (!previous_vnode)
-                throw new Error("component didn't call any elements");
-            open_vnode.node = previous_vnode.node;
-            open_vnode.node["__reactiv_view_node"] = open_vnode;
-        }
+    if (!reuse_vnode)
+        renderNode(parent_node, key, kids, replacing_child);
+}
 
-        if (parent_node && open_vnode.node) {
-            if (key)
-                kids.filter(c => c.key === key).forEach(c => c.node = open_vnode.node);
-
-            // If the node has a key, remove it from the DOM to prevent a large number of re-orders in the case that it moved far or was completely removed. Since we hold on to a reference through the keyMap, we can always add it back.
-            if (replacing_child && replacing_child.node && replacing_child.key)
-                parent_node.replaceChild(open_vnode.node, replacing_child.node);
-            else
-                parent_node.insertBefore(open_vnode.node, replacing_child ? replacing_child.node : null);
-        }
-
-        if (open_vnode.component && open_vnode.node && open_vnode.component.componentDidMount)
-            open_vnode.component.componentDidMount();
+function renderNode(parent_node, key, kids, replacing_child) {
+    if (open_vnode.component) {
+        if (!previous_vnode)
+            throw new Error("component didn't call any elements");
+        open_vnode.node = previous_vnode.node;
+        open_vnode.node["__reactiv_view_node"] = open_vnode;
     }
+
+    if (parent_node && open_vnode.node) {
+        if (key)
+            kids.filter(c => c.key === key).forEach(c => c.node = open_vnode.node);
+
+        // If the node has a key, remove it from the DOM to prevent a large number of re-orders in the case that it moved far or was completely removed. Since we hold on to a reference through the keyMap, we can always add it back.
+        if (replacing_child && replacing_child.node && replacing_child.key)
+            parent_node.replaceChild(open_vnode.node, replacing_child.node);
+        else
+            parent_node.insertBefore(open_vnode.node, replacing_child ? replacing_child.node : null);
+    }
+
+    if (open_vnode.component && open_vnode.node)
+        call(open_vnode, "componentDidMount");
 }

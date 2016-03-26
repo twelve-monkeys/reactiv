@@ -2,13 +2,13 @@
 
 import * as jsx from "../../reactiv";
 
- interface messageProps {
+interface messageProps {
     importance: number;
     message: string;
 }
 
 
- class message extends jsx.Component<messageProps, void> {
+class message extends jsx.Component<messageProps, void> {
     render() {
         jsx.elementOpen("div", null, null, "style", { display: "inline", color: this.props.importance > 5 ? "red" : "gray" });
         jsx.text(this.props.message);
@@ -16,16 +16,16 @@ import * as jsx from "../../reactiv";
     }
 }
 
- interface importantProps {
+interface importantProps {
     importance: number;
     name: string;
 }
 
- interface importantState {
+interface importantState {
     tired: boolean;
 }
 
- class important extends jsx.Component<importantProps, importantState> {
+class important extends jsx.Component<importantProps, importantState> {
     constructor(props: importantProps) {
         super(props);
         this.setState({ tired: false });
@@ -47,15 +47,30 @@ let lc_componentWillUnmount = 0; // check
 let lc_render = 0;// check
 
 let freeze_message = false;
+let set_state_on_construct = undefined;
+let set_state_on_getState = undefined;
 class lifecycle {
+    state: any;
+
     constructor() {
         lc_methods.push("constructor");
         lc_constructor++;
+        if (set_state_on_construct) {
+            console.log("set_state_on_construct");
+            this.state = set_state_on_construct;
+        }
+    }
+
+    getState() {
+        return set_state_on_getState || {frodo:3};
     }
 
     componentWillMount() {
         lc_methods.push("componentWillMount");
         lc_componentWillMount++;
+        // if (set_state_on_construct)
+        //     if (this.state !== set_state_on_construct)
+        //         throw new Error("state set when constructing should stay");
     }
 
     componentDidMount() {
@@ -160,7 +175,6 @@ describe("a patch", () => {
         });
         expect(node.outerHTML).toBe("<div><div></div></div>");
     });
-
 
     it("will remove something", () => {
         jsx.patch(node, () => {
@@ -282,6 +296,45 @@ describe("a patch", () => {
 
         expect(node.outerHTML).toBe('<div><div frozen="no"></div></div>');
     });
+
+    describe("with state set in the constructor", () => {
+        beforeEach(() => {
+            set_state_on_construct = {frodo:true};
+        });
+        
+        afterEach(() => {
+            set_state_on_construct = undefined;
+        });
+        
+        it("doesn't call getState", () => {
+            jsx.patch(node, () => {
+                jsx.elementVoid(lifecycle as any);
+            });
+            let vnode = node["__reactiv_view_node"].kids[0];
+           
+            expect(vnode.component.state.frodo).toBe(true);
+        });
+    });
+    
+    describe("with state not set in the constructor", () => {
+        beforeEach(() => {
+            set_state_on_getState = {frodo:true};
+        });
+        
+        afterEach(() => {
+            set_state_on_getState = undefined;
+        });
+        
+        it("calls getState", () => {
+            jsx.patch(node, () => {
+                jsx.elementVoid(lifecycle as any);
+            });
+            let vnode = node["__reactiv_view_node"].kids[0];
+           
+            expect(vnode.component.state.frodo).toBe(true);
+        });
+    });
+    
 
     it("adds event handlers", () => {
         let prevent_click_default = false;
@@ -424,7 +477,7 @@ describe("a patch", () => {
     });
 
     it("calls componentWillUpdate appropriately", () => {
-        jsx.patch(node, () => jsx.elementVoid(lifecycle as any));
+        jsx.patch(node, () => jsx.elementVoid(lifecycle as any, undefined, undefined, "data-index", "1"));
         expect(lc_componentWillUpdate).toBe(0);
         jsx.patch(node, () => jsx.elementVoid(lifecycle as any));
         expect(lc_componentWillUpdate).toBe(1);
@@ -514,15 +567,15 @@ describe("a patch", () => {
 
         const iterations = 10000;
         let i = 0;
-        while(i < iterations) {
-            jsx.patch(node, () => 
+        while (i < iterations) {
+            jsx.patch(node, () =>
                 jsx.elementVoid(important as any, null, null, "importance", (i++) % 10, "name", "bond, jimmy-bob " + (i % 2 ? "melon-field" : "princess") + " bond"));
         }
 
         const duration = new Date().getTime() - start;
 
         console.log("benchmark: " + iterations + " took " + duration + " ms = " + (Math.ceil(duration / iterations * 10000) / 10) + " us per");
-        expect(duration).toBeLessThan(250);
+        expect(duration).toBeLessThan(2500);
     });
 
     it("deals with keys", () => {

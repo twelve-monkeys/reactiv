@@ -2,12 +2,13 @@ export declare class Component<P, S> {
     props: P;
     state: S;
     constructor(props: P);
-    componentWillMount(): void;
-    componentDidMount(): void;
-    componentWillUnmount(): void;
-    shouldComponentUpdate(): boolean;
-    componentWillReceiveProps(next_props: any): void;
+    componentWillMount(props?: any, state?: any): void;
+    componentDidMount(props?: any, state?: any): void;
+    componentWillUnmount(props?: any, state?: any): void;
+    shouldComponentUpdate(next_props?: any, next_state?: any): boolean;
+    componentWillReceiveProps(next_props?: any, next_state?: any): void;
     render(): void;
+    getState(): S;
     setState(state: S): void;
 }
 export declare function patch(element: Element, fn: () => void): void;

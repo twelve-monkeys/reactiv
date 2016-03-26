@@ -27,7 +27,7 @@ module.exports = function(config) {
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['junit'],
+    reporters: ['progress','junit'],
     junitReporter: {
       outputDir: '$CIRCLE_TEST_REPORTS/Karma', // results will be saved as $outputDir/$browserName.xml
       suite: '', // suite will become the package name attribute in xml testsuite element
