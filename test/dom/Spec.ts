@@ -56,7 +56,6 @@ class lifecycle {
         lc_methods.push("constructor");
         lc_constructor++;
         if (set_state_on_construct) {
-            console.log("set_state_on_construct");
             this.state = set_state_on_construct;
         }
     }

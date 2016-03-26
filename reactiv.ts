@@ -301,8 +301,6 @@ function sync(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n
         open_vnode.component =  new fn();
         open_vnode.component.props = next_props;
         open_vnode.component.state = open_vnode.component.state || call(open_vnode, "getState");
-        console.log("====");
-        console.log(open_vnode.component.state);
         call(open_vnode, "componentWillMount");
     }
 
