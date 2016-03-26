@@ -6,10 +6,9 @@ module.exports = {
         extensions: ['', '.ts', '.tsx']
     },
 
-    devtool: 'inline-source-map',
-
     output: {
         path: path.join(path.join(__dirname, "test"), "lib"),
+        library: '',
         filename: "tests-nodejs.js"
     },
 
