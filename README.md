@@ -1,6 +1,8 @@
 # reactiv
 A react-like incremental vdom renderer
 
+[![Circle CI](https://circleci.com/gh/twelve-monkeys/reactiv.svg?style=svg)](https://circleci.com/gh/twelve-monkeys/reactiv)
+
 Still proof-of-concept.
 
 This is a concretisation of google's incremental dom renderer, which has a vdom attached to the dom. This version keeps the virtual dom but mutates it incrementally. This uses the same small, non-gc-churning data objects as google's approach while avoiding relying on the DOM for iteration as it does.
