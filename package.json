@@ -11,8 +11,8 @@
   "scripts": {
     "clean": "rm -r -f lib && rm -r -f test/lib",
     "lint": "tslint src/reactiv.ts",
-    "build": "npm run clean && tsc src/reactiv.ts -t es3 --m commonjs -d --outDir bin && npm run lint",
-    "build-tests": "tsc src/tests/spec.ts -t es5 --jsx preserve --m commonjs --sourceMap  --outDir bin && npm run lint",
+    "build": "npm run clean && tsc src/reactiv.ts -t es3 --m commonjs --sourceMap -d --outDir bin && npm run lint",
+    "build-tests": "tsc src/tests/spec.ts -t es5 --jsx preserve --m commonjs --sourceMap --outDir bin && npm run lint",
     "test": "npm run build-tests && npm run test-phantom",
     "test-phantom": "npm run build-tests && karma start --single-run",
     "test-chrome": "npm run build-tests && karma start --single-run --browsers Chrome",
