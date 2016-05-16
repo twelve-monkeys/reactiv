@@ -10,12 +10,12 @@
   "typings": "./lib/reactiv.d.ts",
   "scripts": {
     "clean": "rm -r -f lib && rm -r -f test/lib",
-    "lint": "tslint reactiv.ts",
-    "typings": "tsc -p tsconfig.for.definitions.json",
-    "build": "npm run clean && npm run typings && webpack",
-    "test": "npm run build && npm run test-nodejs",
-    "test-nodejs": "webpack --config webpack.tests.config.js && karma start --single-run",
-    "test-chrome": "webpack --config webpack.tests.config.js && karma start --single-run --browsers Chrome",
+    "lint": "tslint src/reactiv.ts",
+    "build": "npm run clean && tsc src/reactiv.ts -t es3 --m commonjs -d --outDir bin && npm run lint",
+    "build-tests": "tsc src/tests/spec.ts -t es5 --jsx preserve --m commonjs --sourceMap  --outDir bin && npm run lint",
+    "test": "npm run build-tests && npm run test-phantom",
+    "test-phantom": "npm run build-tests && karma start --single-run",
+    "test-chrome": "npm run build-tests && karma start --single-run --browsers Chrome",
     "test-require": "npm run build && npm install -g . && npm ls -g && cd test && node test-require.js && cd .. && npm remove -g .",
     "publish-patch": "npm run build && npm version patch && npm publish",
     "publish-minor": "npm run build && npm version minor && npm publish"
@@ -30,16 +30,17 @@
   "author": "jeremy kothe",
   "license": "ISC",
   "devDependencies": {
-    "awesome-typescript-loader": "^0.15.9",
-    "dts-bundle": "^0.4.3",
+    "browserify": "^13.0.1",
     "jasmine-core": "^2.4.1",
     "karma": "^0.13.22",
+    "karma-browserify": "^5.0.5",
     "karma-chrome-launcher": "^0.2.3",
     "karma-jasmine": "^0.3.8",
     "karma-junit-reporter": "^0.4.1",
     "karma-phantomjs-launcher": "^1.0.0",
     "phantomjs-prebuilt": "^2.1.7",
+    "tslint": "^3.10.2",
     "typescript": "^1.8.10",
-    "webpack": "^1.12.14"
+    "watchify": "^3.7.0"
   }
 }

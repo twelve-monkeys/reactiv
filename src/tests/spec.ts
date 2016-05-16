@@ -1,6 +1,14 @@
-/// <reference path="../../typings/tsd.d.ts" />
+/// <reference path="./jasmine.d.ts" />
+import * as jsx from "../reactiv";
 
-import * as jsx from "../../reactiv";
+// describe("a test", () => {
+//     it("exists", () => {
+        
+//         expect(jsx.version).toBe(42);
+//     })
+// })
+
+
 
 interface messageProps {
     importance: number;
@@ -584,10 +592,12 @@ describe("a patch", () => {
 
         expect(node.outerHTML).toBe('<div><div id="iamme"></div></div>');
 
+        node.children.item(0).setAttribute("data-added", "item changed outside of renderer")
+
         jsx.patch(node, () => {
             jsx.elementVoid("div", "1", null, "id", "iamstillme");
         });
 
-        expect(node.outerHTML).toBe('<div><div id="iamstillme"></div></div>');
+        expect(node.outerHTML).toBe('<div><div id="iamstillme" data-added="item changed outside of renderer"></div></div>');
     });
 });

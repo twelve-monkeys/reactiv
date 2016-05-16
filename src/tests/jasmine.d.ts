@@ -41,7 +41,7 @@ declare function runs(asyncMethod: Function): void;
 declare function waitsFor(latchMethod: () => boolean, failureMessage?: string, timeout?: number): void;
 declare function waits(timeout?: number): void;
 
-declare module jasmine {
+declare namespace jasmine {
 
     var clock: () => Clock;
 
@@ -303,15 +303,6 @@ declare module jasmine {
         Any: Any;
     }
 
-    interface Reporter {
-        reportRunnerStarting(runner: Runner): void;
-        reportRunnerResults(runner: Runner): void;
-        reportSuiteResults(suite: Suite): void;
-        reportSpecStarting(spec: Spec): void;
-        reportSpecResults(spec: Spec): void;
-        log(str: string): void;
-    }
-
     interface MultiReporter extends Reporter {
         addReporter(reporter: Reporter): void;
     }
@@ -493,4 +484,161 @@ declare module jasmine {
     export var HtmlReporter: HtmlReporter;
     export var HtmlSpecFilter: HtmlSpecFilter;
     export var DEFAULT_TIMEOUT_INTERVAL: number;
+
+    interface JasmineOptions {
+        jasmineCore?: {
+            boot: (jasmineRequire: any) => any;
+            files: {
+                path: string;
+                bootDir: string;
+                bootFiles: string[];
+                nodeBootFiles: string[];
+                cssFiles: string[];
+                jsFiles: string[];
+                imagesDir: string;
+            };
+            [index: string]: any; // @todo add other properties of jasmine-core
+        };
+        projectBaseDir?: string;
+        printDeprecation?: (message: string) => any;
+    }
+
+    interface Config {
+        spec_dir?: string;
+        spec_files?: string[];
+        helpers?: string[];
+        stopSpecOnExpectationFailure?: boolean;
+        random?: boolean;
+    }
+
+    interface OrderOptions {
+        random?: boolean;
+        seed?: string;
+    }
+
+    interface OrderStatic {
+        new (options: OrderOptions): Order;
+    }
+
+    interface Order {
+        random: boolean;
+        seed: number|string;
+        sort: (items: any[]) => any[];
+    }
+
+    interface SpecResult {
+        id: any;
+        description: string;
+        fullName: string;
+        failedExpectations: any[];
+        passedExpectations: any[];
+        pendingReason: string;
+        status: string;
+    }
+
+    interface SuiteResult {
+        id: any;
+        description: string;
+        fullName: string;
+        failedExpectations: any[];
+        status: string;
+    }
+
+    interface TimerStatic {
+        new (options?: {now: number}): Timer;
+    }
+
+    interface Timer {
+        start: () => any;
+        elapsed: () => number;
+    }
+
+    interface ReporterOptions {
+        timer?: Timer;
+        print?: Function;
+        showColors?: boolean;
+        jasmineCorePath?: string;
+        onComplete?: Function;
+    }
+
+    interface Reporter {
+        jasmineStarted?: (totalSpecsDefined?: number) => any;
+        suiteStarted?: (result?: SuiteResult) => any;
+        specStarted?: (spec?: Spec) => any;
+        specDone?: (result?: SpecResult) => any;
+        suiteDone?: (result?: SuiteResult) => any;
+        jasmineDone?: (runDetails?: {order: Order}) => any;
+    }
+
+    interface ConsoleReporterOptions extends ReporterOptions {
+        print: Function;
+        jasmineCorePath: string;
+        printDeprecation?: Function;
+        stackFilter?: Function;
+    }
+
+    interface ConsoleReporterStatic {
+        new (options: jasmine.ConsoleReporterOptions): ConsoleReporter;
+    }
+
+    interface ConsoleReporter extends Reporter {
+        jasmineStarted(): void;
+        jasmineDone(result?: {order: Order}): void;
+        status(): string;
+        specDone(result: {status: string}): void;
+        suiteDone(result: {failedExpectations: any[]}): void;
+    }
+
+    interface ExitCodeReporter extends Reporter {
+        onComplete(callback: (result?: boolean) => any): void;
+        jasmineDone(): void;
+        specDone(result: {status: string}): void;
+        suiteDone(result: {failedExpectations: any[]}): void;
+    }
+}
+
+declare module "jasmine" {
+    namespace Jasmine {}
+
+    class Jasmine {
+        static ConsoleReporter: jasmine.ConsoleReporterStatic;
+
+        jasmineCorePath: string;
+        jasmine: {
+            Timer: jasmine.TimerStatic;
+            [index: string]: any; // @todo add properties
+        };
+        projectBaseDir: string;
+        printDeprecation(message: string): any;
+        specFiles: string[];
+        helperFiles: string[];
+        env: {
+            [index: string]: any; // @todo add properties
+        };
+        reportersCount: number;
+        exitCodeReporter: jasmine.ExitCodeReporter;
+        onCompleteCallbackAdded: boolean;
+        exit(exitCode: number, platform: string, nodeVersion: string, exit: Function, nodeExit: Function): void;
+        showingColors: boolean;
+
+        constructor(options?: jasmine.JasmineOptions);
+
+        randomizeTests(value: boolean): void;
+        seed(value: number|string): void;
+        showColors(value: boolean): void;
+        addSpecFile(filePath: string): void;
+        addReporter(reporter: jasmine.Reporter): void;
+        configureDefaultReporter(options: jasmine.ReporterOptions): void;
+        addMatchers(matchers: {[index: string]: Function}): void;
+        loadSpecs(): void;
+        loadHelpers(): void;
+        loadConfigFile(configFilePath?: string): void;
+        loadConfig(config: jasmine.Config): void;
+        addSpecFiles(files: string[]): void;
+        onComplete(callback: Function): void;
+        stopSpecOnExpectationFailure(value: boolean): void;
+        execute(files?: string[], filterString?: string): void;
+    }
+
+    export = Jasmine;
 }
