@@ -17,8 +17,8 @@
     "test-phantom": "npm run build-tests && karma start --single-run",
     "test-chrome": "npm run build-tests && karma start --single-run --browsers Chrome",
     "test-require": "npm run build && npm install -g . && npm ls -g && cd test && node test-require.js && cd .. && npm remove -g .",
-    "publish-patch": "npm run build && npm version patch && npm publish",
-    "publish-minor": "npm run build && npm version minor && npm publish"
+    "publish-patch": "npm run build && npm run build-tests && npm version patch && npm publish",
+    "publish-minor": "npm run build && npm run build-tests && npm version minor && npm publish"
   },
   "keywords": [
     "react",
