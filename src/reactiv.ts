@@ -15,6 +15,22 @@ interface IComponent {
     setState(state: any);
 }
 
+interface VNode {
+    parent: VNode;
+    key?: string;
+    tag: string;
+    attrs: { [name: string]: any };
+    node?: Node;
+    component?: IComponent;
+    kids: VNode[];
+    text?: string;
+}
+
+let root: VNode;
+let just_patched: VNode;
+let patching: VNode;
+let patch_next: VNode;
+
 export class Component<P, S> {
     state: S;
     constructor(public props: P) {
@@ -34,24 +50,11 @@ export class Component<P, S> {
     }
 }
 
-interface VNode {
-    parent: VNode;
-    key?: string;
-    tag: string;
-    attrs: { [name: string]: any };
-    node?: Node;
-    component?: IComponent;
-    kids: VNode[];
-    text?: string;
-}
+let html = "";
 
-let open_vnode: VNode;
-let next_vnode: VNode;
-let previous_vnode: VNode;
-
-export function patch(element: Element, fn: () => void) {
-    let node = element["__reactiv_view_node"] as VNode;
-    if (!node)
+export function patch(element: Element, fn: () => void|string) {
+    let node = (element ? element["__reactiv_view_node"] : null) as VNode;
+    if (!node && element)
         element["__reactiv_view_node"] = node = {
             parent: null,
             tag: element.nodeName.toLowerCase(),
@@ -61,14 +64,24 @@ export function patch(element: Element, fn: () => void) {
             kids: []
         };
 
-    previous_vnode = null;
-    open_vnode = null;
-    next_vnode = node;
+    just_patched = null;
+    patching = null;
+    patch_next = node;
+    root = node;
+
+    html = null;
+    if (!element) {
+        html = "";
+        fn();
+        return html;
+    }
 
     elementOpen(element.nodeName, null, null);
     fn();
     elementClose();
 }
+
+let closingHtml = [];
 
 export function elementVoid(tag: string, key?: string, statics?, a1?, a2?, a3?, a4?, a5?, a6?) {
     elementOpen.apply(null, arguments);
@@ -90,6 +103,28 @@ export function text(value: any, formatters?: ((value) => string)[]) {
 }
 
 export function elementOpen(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n2?, v2?, n3?, v3?) {
+    if (!root && typeof tag === "string") {
+        html += "<" + tag;
+
+        const emit_arg = (name, value) => {
+            if (!name)
+                return;
+            html += " " + name;
+            if (value)
+                html += "=\"" + value + "\"";
+        };
+
+        if (statics)
+            for (let i = 0; i < statics.length; i += 2)
+                emit_arg(statics[i], statics[i + 1]);
+
+        for (let i = 3; i < arguments.length; i += 2)
+            emit_arg(arguments[i], arguments[i + 1]);
+
+        html += ">";
+        closingHtml.push("</" + tag + ">");
+        return;
+    }
     _elementOpen.apply(null, arguments);
 }
 
@@ -97,10 +132,10 @@ function sync_arg(node: HTMLElement, name: string, value: any) {
     if (value === null || value === undefined)
         return false;
 
-    let existing_value = open_vnode.attrs[name];
+    let existing_value = patching.attrs[name];
     switch (name) {
         case "style":
-            if (open_vnode.component)
+            if (patching.component)
                 throw new Error("components don't have dom nodes, you cannot set styles directly on them");
 
             if (typeof value === "string") {
@@ -116,7 +151,7 @@ function sync_arg(node: HTMLElement, name: string, value: any) {
                 visited_style[prop] = true;
                 if (!existing_value || existing_value[prop] !== prop_value) {
                     style[prop] = prop_value;
-                    (open_vnode.attrs[name] = existing_value = existing_value || {})[prop] = prop_value;
+                    (patching.attrs[name] = existing_value = existing_value || {})[prop] = prop_value;
                 }
             }
 
@@ -129,7 +164,7 @@ function sync_arg(node: HTMLElement, name: string, value: any) {
             break;
         default:
             if (existing_value !== value)
-                open_vnode.attrs[name] = value;
+                patching.attrs[name] = value;
 
             if (name === "className")
                 name = "class";
@@ -139,10 +174,10 @@ function sync_arg(node: HTMLElement, name: string, value: any) {
                     ((fn: (event) => void) => {
                         const event_name = name.slice(2).toLowerCase();
                         if (existing_value !== fn)
-                            open_vnode.node.removeEventListener(event_name, existing_value);
-                        open_vnode.node.addEventListener(event_name, fn);
+                            patching.node.removeEventListener(event_name, existing_value);
+                        patching.node.addEventListener(event_name, fn);
                     })(value);
-            } else if (!open_vnode.component)
+            } else if (!patching.component)
                 node.setAttribute(name, value);
             break;
     }
@@ -154,11 +189,11 @@ function _elementOpen(tag: string | Function, key?: string, statics?: any[], n1?
 
     sync.apply(null, arguments);
 
-    //    if (open_vnode.component)
-    //        return open_vnode;
+    //    if (patching.component)
+    //        return patching;
 
     const visited = {};
-    let node = open_vnode.node as HTMLElement;
+    let node = patching.node as HTMLElement;
 
     if (statics)
         for (let i = 0; i < statics.length; i += 2)
@@ -169,46 +204,51 @@ function _elementOpen(tag: string | Function, key?: string, statics?: any[], n1?
         if (sync_arg(node, arguments[i], arguments[i + 1]))
             visited[arguments[i]] = true;
 
-    for (let name in open_vnode.attrs)
+    for (let name in patching.attrs)
         if (!visited[name]) {
-            if (name.slice(0, 2) === "on" && typeof open_vnode.attrs[name] === "function")
-                node.removeEventListener(name.slice(2).toLowerCase(), open_vnode.attrs[name]);
-            else if (!open_vnode.component)
-                (open_vnode.node as HTMLElement).removeAttribute(name);
+            if (name.slice(0, 2) === "on" && typeof patching.attrs[name] === "function")
+                node.removeEventListener(name.slice(2).toLowerCase(), patching.attrs[name]);
+            else if (!patching.component)
+                (patching.node as HTMLElement).removeAttribute(name);
 
-            delete open_vnode.attrs[name];
+            delete patching.attrs[name];
         }
 
-    return open_vnode;
+    return patching;
 }
 
 export function elementClose() {
-    if (open_vnode) {
-        const kids = open_vnode.kids;
+    if (!root) {
+        if (closingHtml.length)
+            html += closingHtml.pop();
+        return;
+    }
+    if (patching) {
+        const kids = patching.kids;
         while (true) {
             const child = kids[kids.length - 1];
-            if (!child || child === previous_vnode)
+            if (!child || child === just_patched)
                 break;
 
             if (child.component && child.component.componentWillUnmount)
                 child.component.componentWillUnmount();
 
-            open_vnode.node.removeChild(child.node);
+            patching.node.removeChild(child.node);
             kids.splice(kids.indexOf(child), 1);
         }
-
         for (let child of kids.slice())
-            if (child.parent !== open_vnode)
+            if (child.parent !== patching)
                 kids.splice(kids.indexOf(child), 1);
     }
-    previous_vnode = open_vnode;
-    next_vnode = (open_vnode && open_vnode.parent) ? open_vnode.parent.kids[open_vnode.parent.kids.indexOf(open_vnode) + 1] : undefined;
-    open_vnode = open_vnode ? open_vnode.parent : null;
+
+    just_patched = patching;
+    patch_next = (patching && patching.parent) ? patching.parent.kids[patching.parent.kids.indexOf(patching) + 1] : undefined;
+    patching = patching ? patching.parent : null;
 }
 
 function getProps(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n2?, v2?, n3?, v3?) {
-    open_vnode = next_vnode;
-    next_vnode = open_vnode.kids[0];
+    patching = patch_next;
+    patch_next = patching.kids[0];
 
     const props = {};
     if (statics)
@@ -230,83 +270,83 @@ function getProps(tag: string | Function, key?: string, statics?: any[], n1?, v1
 }
 
 function call(node: VNode, fn: string, ...args: any[]): any {
-    return fn && node && node.component && node.component[fn] ? node.component[fn].apply(open_vnode.component, args) : undefined;
+    return fn && node && node.component && node.component[fn] ? node.component[fn].apply(patching.component, args) : undefined;
 }
 
 function renderComponent(is_new, next_props) {
     if (is_new) {
-        call(open_vnode, "render");
+        call(patching, "render");
         return;
     }
 
-    open_vnode.component.props = open_vnode.component.props || {};
-    call(open_vnode, "componentWillReceiveProps", next_props, open_vnode.component.state);
-    open_vnode.component.props = next_props;
+    patching.component.props = patching.component.props || {};
+    call(patching, "componentWillReceiveProps", next_props, patching.component.state);
+    patching.component.props = next_props;
 
-    if (call(open_vnode, "shouldComponentUpdate", next_props) === false) {
-        previous_vnode = next_vnode;
-        next_vnode = open_vnode.kids[open_vnode.kids.indexOf(previous_vnode) + 1];
+    if (call(patching, "shouldComponentUpdate", next_props) === false) {
+        just_patched = patch_next;
+        patch_next = patching.kids[patching.kids.indexOf(just_patched) + 1];
         return;
     }
 
-    call(open_vnode, "componentWillUpdate", open_vnode.component.props, open_vnode.component.state);
-    call(open_vnode, "render");
-    call(open_vnode, "componentDidUpdate", open_vnode.component.props, open_vnode.component.state);
+    call(patching, "componentWillUpdate", patching.component.props, patching.component.state);
+    call(patching, "render");
+    call(patching, "componentDidUpdate", patching.component.props, patching.component.state);
 }
 
 function sync(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n2?, v2?, n3?, v3?) {
-    previous_vnode = null;
+    just_patched = null;
 
-    let reuse_vnode = next_vnode && next_vnode.key === key;
+    let reuse_vnode = patch_next && patch_next.key === key;
     if (reuse_vnode)
         if (typeof tag === "string")
-            reuse_vnode = next_vnode.tag === tag || next_vnode.tag === tag.toLowerCase();
+            reuse_vnode = patch_next.tag === tag || patch_next.tag === tag.toLowerCase();
         else
-            reuse_vnode = next_vnode.component && next_vnode.component.constructor["name"] === tag["name"];
+            reuse_vnode = patch_next.component && patch_next.component.constructor["name"] === tag["name"];
 
     let replacing_child: VNode;
     let parent_node: Node;
 
-    const kids = open_vnode ? open_vnode.kids : null;
+    const kids = patching ? patching.kids : null;
 
     if (reuse_vnode) {
         const next_props = getProps.apply(null, arguments);
-        if (open_vnode.component)
+        if (patching.component)
             renderComponent(!reuse_vnode, next_props);
         return;
     }
 
-    replacing_child = next_vnode;
+    replacing_child = patch_next;
 
-    next_vnode = key && open_vnode ? kids.filter(c => c.key === key)[0] : null;
+    patch_next = key && patching ? kids.filter(c => c.key === key)[0] : null;
 
     let create_component = false;
 
-    if (!next_vnode)
+    if (!patch_next)
         if (typeof tag === "function") {
-            next_vnode = { parent: open_vnode, node: null, tag: tag["name"], key, attrs: {}, component: null, kids: [] };
+            patch_next = { parent: patching, node: null, tag: tag["name"], key, attrs: {}, component: null, kids: [] };
             create_component = true;
         } else {
-            const doc = open_vnode && open_vnode.node ? open_vnode.node.ownerDocument : document;
-            next_vnode = { parent: open_vnode, node: tag === "#text" ? doc.createTextNode("") : doc.createElement(tag as string), tag: (tag as string).toLowerCase(), key, attrs: {}, kids: [] };
+            const doc = patching && patching.node ? patching.node.ownerDocument : document;
+            patch_next = { parent: patching, node: tag === "#text" ? doc.createTextNode("") : doc.createElement(tag as string), tag: (tag as string).toLowerCase(), key, attrs: {}, kids: [] };
         }
 
-    if (open_vnode) {
-        kids.splice(replacing_child ? kids.indexOf(replacing_child) : kids.length, 0, next_vnode);
-        parent_node = open_vnode.node;
+    if (patching) {
+        kids.splice(replacing_child ? kids.indexOf(replacing_child) : kids.length, 0, patch_next);
+        parent_node = patching.node;
     }
 
     const next_props = getProps.apply(null, arguments);
 
     if (create_component) {
         const fn = (tag as Function).bind.apply(tag, [null].concat([]));
-        open_vnode.component =  new fn();
-        open_vnode.component.props = next_props;
-        open_vnode.component.state = open_vnode.component.state || call(open_vnode, "getState");
-        call(open_vnode, "componentWillMount");
+        patching.component =  new fn();
+        patching.component.props = next_props;
+        patching.component.state = patching.component.state || call(patching, "getState");
+        call(patching, "componentWillMount");
     }
 
-    if (open_vnode.component)
+    if (patching.component)
         renderComponent(!reuse_vnode, next_props);
 
     if (!reuse_vnode)
@@ -314,24 +354,25 @@ function sync(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n
 }
 
 function renderNode(parent_node, key, kids, replacing_child) {
-    if (open_vnode.component) {
-        if (!previous_vnode)
+    if (root) {
+        if (patching.component) {
+        if (!just_patched)
             throw new Error("component didn't call any elements");
-        open_vnode.node = previous_vnode.node;
-        open_vnode.node["__reactiv_view_node"] = open_vnode;
+        patching.node = just_patched.node;
+        patching.node["__reactiv_view_node"] = patching;
     }
 
-    if (parent_node && open_vnode.node) {
+    if (parent_node && patching.node) {
         if (key)
-            kids.filter(c => c.key === key).forEach(c => c.node = open_vnode.node);
+            kids.filter(c => c.key === key).forEach(c => c.node = patching.node);
 
         // If the node has a key, remove it from the DOM to prevent a large number of re-orders in the case that it moved far or was completely removed. Since we hold on to a reference through the keyMap, we can always add it back.
         if (replacing_child && replacing_child.node && replacing_child.key)
-            parent_node.replaceChild(open_vnode.node, replacing_child.node);
+            parent_node.replaceChild(patching.node, replacing_child.node);
         else
-            parent_node.insertBefore(open_vnode.node, replacing_child ? replacing_child.node : null);
+            parent_node.insertBefore(patching.node, replacing_child ? replacing_child.node : null);
     }
-
-    if (open_vnode.component && open_vnode.node)
-        call(open_vnode, "componentDidMount");
+    }
+    if (patching.component && patching.node)
+        call(patching, "componentDidMount");
 }

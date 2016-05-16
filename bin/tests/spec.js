@@ -475,4 +475,29 @@ describe("a patch", function () {
         expect(node.outerHTML).toBe('<div><div id="iamstillme" data-added="item changed outside of renderer"></div></div>');
     });
 });
+describe("a render into text", function () {
+    it("should not crash", function () {
+        jsx.patch(null, function () {
+            jsx.elementVoid("div", "1", null, "id", "iamme");
+        });
+    });
+    it("should return a div", function () {
+        var result = jsx.patch(null, function () {
+            jsx.elementVoid("div");
+        });
+        expect(result).toBe("<div></div>");
+    });
+    it("should return a div with an id", function () {
+        var result = jsx.patch(null, function () {
+            jsx.elementVoid("div", null, null, "id", "uno");
+        });
+        expect(result).toBe("<div id=\"uno\"></div>");
+    });
+    it("should return a div with a component", function () {
+        var result = jsx.patch(null, function () {
+            jsx.elementVoid(important, null, null, "importance", 7, "name", "bond, jimmy-bob melon-field bond");
+        });
+        expect(result).toBe('<div style="display: inline; color: red;">ok</div>');
+    });
+});
 //# sourceMappingURL=spec.js.map

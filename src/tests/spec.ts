@@ -601,3 +601,33 @@ describe("a patch", () => {
         expect(node.outerHTML).toBe('<div><div id="iamstillme" data-added="item changed outside of renderer"></div></div>');
     });
 });
+
+describe("a render into text", () => {
+    it("should not crash", () =>{
+        jsx.patch(null, () => {
+            jsx.elementVoid("div", "1", null, "id", "iamme");
+        });
+    });
+    it("should return a div", () =>{
+        var result = jsx.patch(null, () => {
+            jsx.elementVoid("div");
+        });
+        
+        expect(result).toBe("<div></div>");
+    });
+    it("should return a div with an id", () =>{
+        var result = jsx.patch(null, () => {
+            jsx.elementVoid("div", null, null, "id","uno");
+        });
+        
+        expect(result).toBe("<div id=\"uno\"></div>");
+    });
+    
+    it("should return a div with a component", () =>{
+        var result = jsx.patch(null, () => {
+               jsx.elementVoid(important as any, null, null, "importance", 7, "name", "bond, jimmy-bob melon-field bond");
+        });
+
+        expect(result).toBe('<div style="display: inline; color: red;">ok</div>');
+ });
+});
