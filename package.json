@@ -1,6 +1,6 @@
 {
   "name": "reactiv",
-  "version": "0.3.12",
+  "version": "0.4.0",
   "description": "A react-like incremental vdom renderer",
   "repository": {
     "type": "git",
