@@ -6,10 +6,10 @@
     "type": "git",
     "url": "git://github.com/twelve-monkeys/reactiv.git"
   },
-  "main": "./lib/reactiv-nodejs.js",
-  "typings": "./lib/reactiv.d.ts",
+  "main": "./bin/reactiv.js",
+  "typings": "./bin/reactiv.d.ts",
   "scripts": {
-    "clean": "rm -r -f lib && rm -r -f test/lib",
+    "clean": "rm -r -f bin",
     "lint": "tslint src/reactiv.ts",
     "build": "npm run clean && tsc src/reactiv.ts -t es3 --m commonjs --sourceMap -d --outDir bin && npm run lint",
     "build-tests": "tsc src/tests/spec.ts -t es5 --jsx preserve --m commonjs --sourceMap --outDir bin && npm run lint",
