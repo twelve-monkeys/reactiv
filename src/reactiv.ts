@@ -89,11 +89,11 @@ export function elementVoid(tag: string, key?: string, statics?, a1?, a2?, a3?, 
 }
 
 export function text(value: any, formatters?: ((value) => string)[]) {
-    if(!root) {
+    if (!root) {
         html += value;
         return;
     }
-        
+
     const node = _elementOpen("#text", null, null);
     if (node.text !== value) {
         let formatted = node.text = value;
@@ -118,12 +118,12 @@ function sync_arg(node: HTMLElement, name: string, value: any) {
     let existing_value = patching.attrs[name];
     switch (name) {
         case "style":
-            if(!root) {
+            if (!root) {
                 html += " style=\"";
-                var first = true;
-                for(var key in value) 
-                    if(value.hasOwnProperty(key)) {
-                        if(!first)
+                let first = true;
+                for (let key in value)
+                    if (value.hasOwnProperty(key)) {
+                        if (!first)
                             html += " ";
                         first = false;
                         html += key + ": " + value[key] + ";";
@@ -131,7 +131,7 @@ function sync_arg(node: HTMLElement, name: string, value: any) {
                 html += "\"";
                 break;
             }
-            
+
             if (patching.component)
                 throw new Error("components don't have dom nodes, you cannot set styles directly on them");
 
@@ -175,10 +175,10 @@ function sync_arg(node: HTMLElement, name: string, value: any) {
                         patching.node.addEventListener(event_name, fn);
                     })(value);
             } else if (!patching.component)
-                if(root)
+                if (root)
                     node.setAttribute(name, value);
-                else 
-                    html += " " + name + "=\"" + value+ "\""; 
+                else
+                    html += " " + name + "=\"" + value + "\"";
             break;
     }
     return true;
@@ -200,20 +200,20 @@ function _elementOpen(tag: string | Function, key?: string, statics?: any[], n1?
                 if (sync_arg(node, statics[i], statics[i + 1]))
                     visited[statics[i]] = true;
 
-    if(root || typeof tag === "string")
+    if (root || typeof tag === "string")
     for (let i = 3; i < arguments.length; i += 2)
         if (sync_arg(node, arguments[i], arguments[i + 1]))
             visited[arguments[i]] = true;
 
-    if(!root && typeof tag === "string") 
+    if (!root && typeof tag === "string")
         html += ">";
-        
+
     for (let name in patching.attrs)
         if (!visited[name]) {
             if (name.slice(0, 2) === "on" && typeof patching.attrs[name] === "function")
                 node.removeEventListener(name.slice(2).toLowerCase(), patching.attrs[name]);
             else if (!patching.component)
-                if(root)
+                if (root)
                     (patching.node as HTMLElement).removeAttribute(name);
 
             delete patching.attrs[name];
@@ -332,7 +332,7 @@ function sync(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n
             patch_next = { parent: patching, node: null, tag: tag["name"], key, attrs: {}, component: null, kids: [] };
             create_component = true;
         } else {
-            if(!root) {
+            if (!root) {
                 html += "<" + tag;
                 closingHtml.push("</" + tag + ">");
             }
