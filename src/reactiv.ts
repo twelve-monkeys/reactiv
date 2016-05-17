@@ -89,6 +89,11 @@ export function elementVoid(tag: string, key?: string, statics?, a1?, a2?, a3?, 
 }
 
 export function text(value: any, formatters?: ((value) => string)[]) {
+    if(!root) {
+        html += value;
+        return;
+    }
+        
     const node = _elementOpen("#text", null, null);
     if (node.text !== value) {
         let formatted = node.text = value;
@@ -103,28 +108,6 @@ export function text(value: any, formatters?: ((value) => string)[]) {
 }
 
 export function elementOpen(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n2?, v2?, n3?, v3?) {
-    if (!root && typeof tag === "string") {
-        html += "<" + tag;
-
-        const emit_arg = (name, value) => {
-            if (!name)
-                return;
-            html += " " + name;
-            if (value)
-                html += "=\"" + value + "\"";
-        };
-
-        if (statics)
-            for (let i = 0; i < statics.length; i += 2)
-                emit_arg(statics[i], statics[i + 1]);
-
-        for (let i = 3; i < arguments.length; i += 2)
-            emit_arg(arguments[i], arguments[i + 1]);
-
-        html += ">";
-        closingHtml.push("</" + tag + ">");
-        return;
-    }
     _elementOpen.apply(null, arguments);
 }
 
@@ -135,6 +118,20 @@ function sync_arg(node: HTMLElement, name: string, value: any) {
     let existing_value = patching.attrs[name];
     switch (name) {
         case "style":
+            if(!root) {
+                html += " style=\"";
+                var first = true;
+                for(var key in value) 
+                    if(value.hasOwnProperty(key)) {
+                        if(!first)
+                            html += " ";
+                        first = false;
+                        html += key + ": " + value[key] + ";";
+                    }
+                html += "\"";
+                break;
+            }
+            
             if (patching.component)
                 throw new Error("components don't have dom nodes, you cannot set styles directly on them");
 
@@ -178,7 +175,10 @@ function sync_arg(node: HTMLElement, name: string, value: any) {
                         patching.node.addEventListener(event_name, fn);
                     })(value);
             } else if (!patching.component)
-                node.setAttribute(name, value);
+                if(root)
+                    node.setAttribute(name, value);
+                else 
+                    html += " " + name + "=\"" + value+ "\""; 
             break;
     }
     return true;
@@ -195,21 +195,26 @@ function _elementOpen(tag: string | Function, key?: string, statics?: any[], n1?
     const visited = {};
     let node = patching.node as HTMLElement;
 
-    if (statics)
-        for (let i = 0; i < statics.length; i += 2)
-            if (sync_arg(node, statics[i], statics[i + 1]))
-                visited[statics[i]] = true;
+        if (statics)
+            for (let i = 0; i < statics.length; i += 2)
+                if (sync_arg(node, statics[i], statics[i + 1]))
+                    visited[statics[i]] = true;
 
+    if(root || typeof tag === "string")
     for (let i = 3; i < arguments.length; i += 2)
         if (sync_arg(node, arguments[i], arguments[i + 1]))
             visited[arguments[i]] = true;
 
+    if(!root && typeof tag === "string") 
+        html += ">";
+        
     for (let name in patching.attrs)
         if (!visited[name]) {
             if (name.slice(0, 2) === "on" && typeof patching.attrs[name] === "function")
                 node.removeEventListener(name.slice(2).toLowerCase(), patching.attrs[name]);
             else if (!patching.component)
-                (patching.node as HTMLElement).removeAttribute(name);
+                if(root)
+                    (patching.node as HTMLElement).removeAttribute(name);
 
             delete patching.attrs[name];
         }
@@ -327,6 +332,10 @@ function sync(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n
             patch_next = { parent: patching, node: null, tag: tag["name"], key, attrs: {}, component: null, kids: [] };
             create_component = true;
         } else {
+            if(!root) {
+                html += "<" + tag;
+                closingHtml.push("</" + tag + ">");
+            }
             const doc = patching && patching.node ? patching.node.ownerDocument : document;
             patch_next = { parent: patching, node: tag === "#text" ? doc.createTextNode("") : doc.createElement(tag as string), tag: (tag as string).toLowerCase(), key, attrs: {}, kids: [] };
         }

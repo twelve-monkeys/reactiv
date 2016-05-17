@@ -617,7 +617,7 @@ describe("a render into text", () => {
     });
     it("should return a div with an id", () =>{
         var result = jsx.patch(null, () => {
-            jsx.elementVoid("div", null, null, "id","uno");
+            jsx.elementVoid("div", null, ["id","uno"]);
         });
         
         expect(result).toBe("<div id=\"uno\"></div>");
@@ -627,7 +627,12 @@ describe("a render into text", () => {
         var result = jsx.patch(null, () => {
                jsx.elementVoid(important as any, null, null, "importance", 7, "name", "bond, jimmy-bob melon-field bond");
         });
+        
+        var element = document.createElement("div");
+        var result2 = jsx.patch(element,() => {
+               jsx.elementVoid(important as any, null, null, "importance", 7, "name", "bond, jimmy-bob melon-field bond");
+        });
 
-        expect(result).toBe('<div style="display: inline; color: red;">ok</div>');
+        expect(result).toBe(element.innerHTML);
  });
 });
