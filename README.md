@@ -3,6 +3,7 @@ A react-like incremental vdom renderer
 
 [![Circle CI](https://circleci.com/gh/twelve-monkeys/reactiv.svg?style=svg)](https://circleci.com/gh/twelve-monkeys/reactiv)
 [![Travis CI](https://travis-ci.org/twelve-monkeys/reactiv.svg?branch=master)](https://travis-ci.org/twelve-monkeys/reactiv)
+[![bitHound Overall Score](https://www.bithound.io/github/twelve-monkeys/reactiv/badges/score.svg)](https://www.bithound.io/github/twelve-monkeys/reactiv)
 
 Still proof-of-concept.
 
