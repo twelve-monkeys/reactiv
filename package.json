@@ -1,48 +1,16 @@
 {
   "name": "reactiv",
-  "version": "0.4.2",
-  "description": "A react-like incremental vdom renderer",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/twelve-monkeys/reactiv.git"
-  },
-  "main": "./bin/reactiv.js",
-  "typings": "./bin/reactiv.d.ts",
+  "version": "0.6.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "clean": "rm -r -f bin",
-    "lint": "tslint src/reactiv.ts",
-    "build": "npm run clean && tsc src/reactiv.ts -t es3 --m commonjs --sourceMap -d --outDir bin && npm run lint",
-    "watch": "npm run clean && tsc src/reactiv.ts -t es3 --m commonjs --sourceMap -d --outDir bin && npm run lint",
-    "build-tests": "tsc src/tests/spec.ts -t es5 --jsx preserve --m commonjs --inlineSourceMap --outDir bin && npm run lint",
-    "watch-tests": "start tsc src/tests/spec.ts -t es5 --jsx preserve --m commonjs --inlineSourceMap --outDir bin --watch",
-    "test": "npm run build-tests && npm run test-phantom",
-    "test-phantom": "npm run build-tests && karma start --single-run",
-    "test-chrome": "npm run build-tests && karma start --single-run --browsers Chrome",
-    "test-require": "npm run build && npm install -g . && npm ls -g && cd test && node test-require.js && cd .. && npm remove -g .",
-    "publish-patch": "npm run build && npm run build-tests && npm version patch && npm publish",
-    "publish-minor": "npm run build && npm run build-tests && npm version minor && npm publish"
+    "build": "monkeydo build",
+    "test": "monkeydo test"
   },
-  "keywords": [
-    "react",
-    "jsx",
-    "incremental",
-    "virtual",
-    "dom"
-  ],
-  "author": "jeremy kothe",
+  "author": "",
   "license": "ISC",
   "devDependencies": {
-    "browserify": "^13.0.1",
-    "jasmine-core": "^2.4.1",
-    "karma": "^0.13.22",
-    "karma-browserify": "^5.0.5",
-    "karma-chrome-launcher": "^0.2.3",
-    "karma-jasmine": "^0.3.8",
-    "karma-junit-reporter": "^0.4.1",
-    "karma-phantomjs-launcher": "^1.0.0",
-    "phantomjs-prebuilt": "^2.1.7",
-    "tslint": "^3.10.2",
-    "typescript": "^1.8.10",
-    "watchify": "^3.7.0"
+    "monkeydo": "^0.1.1",
+    "monkeydo-cli": "^0.1.1"
   }
 }

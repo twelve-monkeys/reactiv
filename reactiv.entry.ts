@@ -12,7 +12,7 @@ interface IComponent {
     props: any;
     state: any;
     getState(): any;
-    setState(state: any);
+    setState(state: any): void;
 }
 
 interface VNode {
@@ -53,9 +53,9 @@ export class Component<P, S> {
 let html = "";
 
 export function patch(element: Element, fn: () => void|string) {
-    let node = (element ? element["__reactiv_view_node"] : null) as VNode;
+    let node = (element ? (element as any).__reactiv_view_node : null) as VNode;
     if (!node && element)
-        element["__reactiv_view_node"] = node = {
+        (element as any).__reactiv_view_node = node = {
             parent: null,
             tag: element.nodeName.toLowerCase(),
             node: element,
@@ -81,14 +81,14 @@ export function patch(element: Element, fn: () => void|string) {
     elementClose();
 }
 
-let closingHtml = [];
+let closingHtml = [] as string[];
 
-export function elementVoid(tag: string, key?: string, statics?, a1?, a2?, a3?, a4?, a5?, a6?) {
+export function elementVoid(tag: string, key?: string, statics?:any[], a1?:string, a2?:any, a3?:string, a4?:any, a5?:string, a6?:any) {
     elementOpen.apply(null, arguments);
     elementClose.apply(null, arguments);
 }
 
-export function text(value: any, formatters?: ((value) => string)[]) {
+export function text(value: any, formatters?: ((value:any) => string)[]) {
     if (!root) {
         html += value;
         return;
@@ -107,7 +107,7 @@ export function text(value: any, formatters?: ((value) => string)[]) {
     elementClose();
 }
 
-export function elementOpen(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n2?, v2?, n3?, v3?) {
+export function elementOpen(tag: string | Function, key?: string, statics?: any[], n1?:string, v1?:any, n2?:string, v2?:any, n3?:string, v3?:any) {
     _elementOpen.apply(null, arguments);
 }
 
@@ -147,7 +147,7 @@ function sync_arg(node: HTMLElement, name: string, value: any) {
                 const prop_value = value[prop];
                 visited_style[prop] = true;
                 if (!existing_value || existing_value[prop] !== prop_value) {
-                    style[prop] = prop_value;
+                    (style as any)[prop] = prop_value;
                     (patching.attrs[name] = existing_value = existing_value || {})[prop] = prop_value;
                 }
             }
@@ -155,7 +155,7 @@ function sync_arg(node: HTMLElement, name: string, value: any) {
             for (let prop in existing_value)
                 if (!visited_style[prop]) {
                     delete existing_value[prop];
-                    style[prop] = "";
+                    (style as any)[prop] = "";
                 }
 
             break;
@@ -168,7 +168,7 @@ function sync_arg(node: HTMLElement, name: string, value: any) {
 
             if (["object", "function"].indexOf(typeof value) !== -1) {
                 if (name.slice(0, 2) === "on" && typeof value === "function")
-                    ((fn: (event) => void) => {
+                    ((fn: () => void) => {
                         const event_name = name.slice(2).toLowerCase();
                         if (existing_value !== fn)
                             patching.node.removeEventListener(event_name, existing_value);
@@ -185,14 +185,14 @@ function sync_arg(node: HTMLElement, name: string, value: any) {
 };
 
 
-function _elementOpen(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n2?, v2?, n3?, v3?) {
+function _elementOpen(tag: string | Function, key?: string, statics?: any[], n1?:string, v1?:any, n2?:string, v2?:any, n3?:string, v3?:any) {
 
     sync.apply(null, arguments);
 
     //    if (patching.component)
     //        return patching;
 
-    const visited = {};
+    const visited:any = {};
     let node = patching.node as HTMLElement;
 
         if (statics)
@@ -251,7 +251,7 @@ export function elementClose() {
     patching = patching ? patching.parent : null;
 }
 
-function getProps(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n2?, v2?, n3?, v3?) {
+function getProps(tag: string | Function, key?: string, statics?: any[], n1?:string, v1?:any, n2?:string, v2?:any, n3?:string, v3?:any) {
     patching = patch_next;
     patch_next = patching.kids[0];
 
@@ -262,23 +262,23 @@ function getProps(tag: string | Function, key?: string, statics?: any[], n1?, v1
             let value = statics[i + 1];
 
             if (value !== null && value !== undefined)
-                props[name] = value;
+                (props as any)[name] = value;
         }
     for (let i = 3; i < arguments.length; i += 2) {
         let name = arguments[i];
         let value = arguments[i + 1];
 
         if (value !== null && value !== undefined)
-            props[name] = value;
+            (props as any)[name] = value;
     }
     return props;
 }
 
 function call(node: VNode, fn: string, ...args: any[]): any {
-    return fn && node && node.component && node.component[fn] ? node.component[fn].apply(patching.component, args) : undefined;
+    return fn && node && node.component && (node.component as any)[fn] ? (node.component as any)[fn].apply(patching.component, args) : undefined;
 }
 
-function renderComponent(is_new, next_props) {
+function renderComponent(is_new:boolean, next_props:any) {
     if (is_new) {
         call(patching, "render");
         return;
@@ -299,7 +299,7 @@ function renderComponent(is_new, next_props) {
     call(patching, "componentDidUpdate", patching.component.props, patching.component.state);
 }
 
-function sync(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n2?, v2?, n3?, v3?) {
+function sync(tag: string | Function, key?: string, statics?: any[], n1?:string, v1?:any, n2?:string, v2?:any, n3?:string, v3?:any) {
     just_patched = null;
 
     let reuse_vnode = patch_next && patch_next.key === key;
@@ -307,7 +307,7 @@ function sync(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n
         if (typeof tag === "string")
             reuse_vnode = patch_next.tag === tag || patch_next.tag === tag.toLowerCase();
         else
-            reuse_vnode = patch_next.component && patch_next.component.constructor["name"] === tag["name"];
+            reuse_vnode = patch_next.component && (patch_next.component.constructor as any).name === (tag as any).name;
 
     let replacing_child: VNode;
     let parent_node: Node;
@@ -329,7 +329,7 @@ function sync(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n
 
     if (!patch_next)
         if (typeof tag === "function") {
-            patch_next = { parent: patching, node: null, tag: tag["name"], key, attrs: {}, component: null, kids: [] };
+            patch_next = { parent: patching, node: null, tag: (tag as any).name, key, attrs: {}, component: null, kids: [] };
             create_component = true;
         } else {
             if (!root) {
@@ -362,13 +362,13 @@ function sync(tag: string | Function, key?: string, statics?: any[], n1?, v1?, n
         renderNode(parent_node, key, kids, replacing_child);
 }
 
-function renderNode(parent_node, key, kids, replacing_child) {
+function renderNode(parent_node: Node, key: string, kids: VNode[], replacing_child: VNode) {
     if (root) {
         if (patching.component) {
         if (!just_patched)
             throw new Error("component didn't call any elements");
         patching.node = just_patched.node;
-        patching.node["__reactiv_view_node"] = patching;
+        (patching.node as any).__reactiv_view_node = patching;
     }
 
     if (parent_node && patching.node) {

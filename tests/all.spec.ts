@@ -1,5 +1,5 @@
 /// <reference path="./jasmine.d.ts" />
-import * as jsx from "../reactiv";
+import * as jsx from "../reactiv.entry";
 
 // describe("a test", () => {
 //     it("exists", () => {
