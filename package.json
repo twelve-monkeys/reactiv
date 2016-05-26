@@ -4,13 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "monkeydo build",
-    "test": "monkeydo test"
+    "build": "g6 build",
+    "test": "g6 test"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "monkeydo": "^0.1.1",
-    "monkeydo-cli": "^0.1.1"
+    "g6": "*",
+    "g6-cli": "*"
   }
 }
