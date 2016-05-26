@@ -11,6 +11,6 @@
   "license": "ISC",
   "devDependencies": {
     "g6": "*",
-    "g6-cli": "^0.1.5"
+    "g6-cli": "*"
   }
 }
