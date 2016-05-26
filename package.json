@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "node node_modules/g6-cli/cli.js build",
-    "test": "node node_modules/g6-cli/cli.js test"
+    "test": "npm update && node node_modules/g6-cli/cli.js test"
   },
   "author": "",
   "license": "ISC",
