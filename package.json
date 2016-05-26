@@ -4,13 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "g6 build",
-    "test": "g6 test"
+    "build": "node node_modules/g6-cli/cli.js build",
+    "test": "node node_modules/g6-cli/cli.js test"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "g6": "*",
-    "g6-cli": "*"
+    "g6-cli": "^0.1.5"
   }
 }
