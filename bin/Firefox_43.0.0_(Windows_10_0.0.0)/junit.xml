@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<testsuite name="Firefox 43.0.0 (Windows 10 0.0.0)" package="" timestamp="2016-05-28T05:22:36" id="0" hostname="Aes-PC" tests="35" errors="0" failures="5" time="0.716">
+  <properties>
+    <property name="browser.fullName" value="Mozilla/5.0 (Windows NT 10.0; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"/>
+  </properties>
+  <testcase name="a patch does nothing if nothing is rendered" time="0.028" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch can use elementVoid to insert a div" time="0.021" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch will remove something" time="0.01" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch can replace and add things" time="0.007" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch doesn't re-add the same div" time="0.026" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch handles attributes" time="0.009" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch">
+    <failure type="">Expected '&lt;div&gt;&lt;div style="color: red;" id="the_id"&gt;&lt;/div&gt;&lt;/div&gt;' to be '&lt;div&gt;&lt;div id="the_id" style="color: red;"&gt;&lt;/div&gt;&lt;/div&gt;'.
+@C:/prj/reactiv/bin/specs.js:232:10
+@C:/prj/reactiv/bin/specs.js:169:14
+</failure>
+  </testcase>
+  <testcase name="a patch mutates attributes" time="0.013" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch">
+    <failure type="">Expected '&lt;div&gt;&lt;div style="color: red;" id="the_id"&gt;&lt;/div&gt;&lt;/div&gt;' to be '&lt;div&gt;&lt;div id="the_id" style="color: red;"&gt;&lt;/div&gt;&lt;/div&gt;'.
+@C:/prj/reactiv/bin/specs.js:240:10
+@C:/prj/reactiv/bin/specs.js:169:14
+</failure>
+    <failure type="">Expected '&lt;div&gt;&lt;div style="background-color: red;" id="the_id"&gt;&lt;/div&gt;&lt;/div&gt;' to be '&lt;div&gt;&lt;div id="the_id" style="background-color: red;"&gt;&lt;/div&gt;&lt;/div&gt;'.
+@C:/prj/reactiv/bin/specs.js:252:10
+@C:/prj/reactiv/bin/specs.js:169:14
+</failure>
+  </testcase>
+  <testcase name="a patch adds attributes" time="0.013" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch">
+    <failure type="">Expected '&lt;div&gt;&lt;div name="fred" id="the_id"&gt;&lt;/div&gt;&lt;/div&gt;' to be '&lt;div&gt;&lt;div id="the_id" name="fred"&gt;&lt;/div&gt;&lt;/div&gt;'.
+@C:/prj/reactiv/bin/specs.js:264:10
+@C:/prj/reactiv/bin/specs.js:169:14
+</failure>
+  </testcase>
+  <testcase name="a patch removes attributes" time="0.02" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch">
+    <failure type="">Expected '&lt;div&gt;&lt;div name="fred" id="the_id"&gt;&lt;/div&gt;&lt;/div&gt;' to be '&lt;div&gt;&lt;div id="the_id" name="fred"&gt;&lt;/div&gt;&lt;/div&gt;'.
+@C:/prj/reactiv/bin/specs.js:271:10
+@C:/prj/reactiv/bin/specs.js:169:14
+</failure>
+    <failure type="">Expected '&lt;div&gt;&lt;div data-frame="anterior" frodo="121" id="the_id"&gt;&lt;/div&gt;&lt;/div&gt;' to be '&lt;div&gt;&lt;div id="the_id" frodo="121" data-frame="anterior"&gt;&lt;/div&gt;&lt;/div&gt;'.
+@C:/prj/reactiv/bin/specs.js:279:10
+@C:/prj/reactiv/bin/specs.js:169:14
+</failure>
+  </testcase>
+  <testcase name="a patch deals with a component" time="0.015" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch with state set in the constructor doesn't call getState" time="0.009" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch with state not set in the constructor calls getState" time="0.007" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch adds event handlers" time="0.008" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch removes event handlers" time="0.008" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch changes event handlers" time="0.007" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch allows elements to mutate themselves" time="0.009" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch constructs components appropriately" time="0.008" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch calls componentWillMount appropriately" time="0.013" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch calls componentDidMount appropriately" time="0.008" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch calls componentWillUnmount appropriately" time="0.008" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch calls componentWillUpdate appropriately" time="0.008" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch calls componentDidUpdate appropriately" time="0.009" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch calls shouldComponentUpdate appropriately" time="0.012" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch calls mounting lifecycle methods in the correct order" time="0.011" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch calls re-render lifecycle methods in the correct order" time="0.011" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch respects shouldComponentUpdate" time="0.008" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch calls unmounting lifecycle methods in the correct order" time="0.008" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch unmounts components" time="0.008" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch recognises nested components" time="0.008" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch is fast" time="0.374" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch"/>
+  <testcase name="a patch deals with keys" time="0.011" classname="Firefox_43_0_0_(Windows_10_0_0_0).a patch">
+    <failure type="">Expected '&lt;div&gt;&lt;div data-added="item changed outside of renderer" id="iamstillme"&gt;&lt;/div&gt;&lt;/div&gt;' to be '&lt;div&gt;&lt;div id="iamstillme" data-added="item changed outside of renderer"&gt;&lt;/div&gt;&lt;/div&gt;'.
+@C:/prj/reactiv/bin/specs.js:521:10
+@C:/prj/reactiv/bin/specs.js:169:14
+</failure>
+  </testcase>
+  <testcase name="a render into text should not crash" time="0" classname="Firefox_43_0_0_(Windows_10_0_0_0).a render into text"/>
+  <testcase name="a render into text should return a div" time="0" classname="Firefox_43_0_0_(Windows_10_0_0_0).a render into text"/>
+  <testcase name="a render into text should return a div with an id" time="0" classname="Firefox_43_0_0_(Windows_10_0_0_0).a render into text"/>
+  <testcase name="a render into text should return a div with a component" time="0.001" classname="Firefox_43_0_0_(Windows_10_0_0_0).a render into text"/>
+  <system-out>
+    <![CDATA[Firefox 43.0.0 (Windows 10 0.0.0) LOG: 'benchmark: 10000 took 367 ms = 36.8 us per'
+
+]]>
+  </system-out>
+  <system-err/>
+</testsuite>
