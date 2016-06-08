@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "node node_modules/g6-cli/cli.js build",
-    "test": "npm update && node node_modules/g6-cli/cli.js test"
+    "build": "node node_modules/g6/bin/cli.js build",
+    "test": "npm run build && node node_modules/g6/bin/cli.js test"
   },
   "author": "",
   "license": "ISC",
