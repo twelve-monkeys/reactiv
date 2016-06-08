@@ -1,20 +1,146 @@
 /// <reference path="./jasmine.d.ts" />
+/// <reference path="../node.d.ts" />
 import * as jsx from "../reactiv.entry";
 
 // describe("a test", () => {
 //     it("exists", () => {
-        
+
 //         expect(jsx.version).toBe(42);
 //     })
 // })
 
+class FakeHTMLElement {
+    id: string;
+    constructor(public tagName: string, public value?: any) {
+        this.nodeName = tagName;
+    }
 
+    className: string;
+    nodeName: string;
+    appendChild(element: HTMLElement) {
+        //        console.log("appendChild");
+        this.children.push(element);
+    }
+
+    insertBefore(element: HTMLElement, before_element: HTMLElement) {
+        //        console.log("insertBefore");
+        const index = this.children.indexOf(before_element);
+        if (index === -1)
+            return this.appendChild(element);
+        this.children.splice(index, 0, element);
+    }
+
+    removeChild(element: HTMLElement) {
+        //        console.log("removeChild");
+        const index = this.children.indexOf(element);
+        if (index === -1)
+            return;
+        this.children.splice(index, 1);
+    }
+
+    setAttribute(name: string, value: string) {
+        if (value === undefined || value === null || value === "")
+            this.removeAttribute(name);
+        else
+            this._attributes[name] = value;
+    }
+
+    private _eventListeners = [];
+
+    removeEventListener() { }
+    addEventListener(name: string, handler: Function) {
+        this._eventListeners.push({name, handler})
+     }
+    dispatchEvent() { }
+
+    removeAttribute(name: string) {
+        delete this._attributes[name];
+    }
+
+    private _camelCaseToDashed(value: string) {
+        let result = "";
+        for (const c of value) {
+            if (c >= 'A' && c <= 'Z') {
+                result += '-' + c.toLowerCase();
+            }
+            else
+
+                result += c;
+        }
+        return result;
+    }
+
+    public get outerHTML(): string {
+        if (this.tagName === "#text")
+            return this.innerHTML;
+
+        let attributes = Object.keys(this._attributes).map(p => ` ${p}=\"${this._attributes[p]}\"`).join("");
+        let style = Object.keys(this.style).map(s => {
+            const value = this.style[s];
+            if (value === undefined || value === null || value === "")
+                return "";
+            return `${this._camelCaseToDashed(s)}: ${this.style[s]};`;
+        }).filter(s => !!s).join(" ");
+        if (style)
+            style = ` style=\"${style}\"`;
+
+        return `<${this.tagName}${attributes}${style}>${this.innerHTML}</${this.tagName}>`;
+    };
+
+    public get innerHTML(): string {
+
+        if (this.tagName === "#text")
+            return this.value;
+
+        return this.children.map(c => c.outerHTML).join("");
+    }
+
+    public set innerHTML(value: string) {
+        if (this.tagName === "#text")
+            this.value = value;
+        else
+            this.appendChild(new FakeHTMLElement("#text", value) as any);
+    }
+
+    style = {}
+    ownerDocument: Document;
+
+    children: HTMLElement[] = [];
+    private _attributes: { [name: string]: string } = {};
+}
+
+const window = {};
+
+const document = {
+    createElement: (tagName: string) => {
+        const result = new FakeHTMLElement(tagName);
+        result.ownerDocument = document as any;
+        return result as any as HTMLElement;
+    },
+    createTextNode: (data: string) => {
+        const result = new FakeHTMLElement("#text");
+        result.ownerDocument = document as any;
+        result.value = data;
+        return result as any as HTMLElement;
+    },
+    createEvent: (type: string) => {
+        return {
+            type,
+            initMouseEvent: (...parms: any[]) => { }
+        } as any;
+    },
+    defaultView: window,
+    window,
+    body: new FakeHTMLElement("body")
+};
+
+(global as any).document = document;
+(global as any).window = window;
 
 interface messageProps {
     importance: number;
     message: string;
 }
-
 
 class message extends jsx.Component<messageProps, void> {
     render() {
@@ -69,7 +195,7 @@ class lifecycle {
     }
 
     getState() {
-        return set_state_on_getState || {frodo:3};
+        return set_state_on_getState || { frodo: 3 };
     }
 
     componentWillMount() {
@@ -136,6 +262,7 @@ describe("a patch", () => {
         starting_html = document.body.innerHTML;
         node = document.createElement("div");
         document.body.appendChild(node);
+
         setTimeout(() => {
             let conserve_properties_of = [window, document, document.body];
             original_properties_of = conserve_properties_of.map(container => get_properties(container))
@@ -177,9 +304,11 @@ describe("a patch", () => {
     });
 
     it("can use elementVoid to insert a div", () => {
+        //        console.log("about to...");
         jsx.patch(node, () => {
             jsx.elementVoid("div");
         });
+        //        console.log("did...");
         expect(node.outerHTML).toBe("<div><div></div></div>");
     });
 
@@ -306,42 +435,42 @@ describe("a patch", () => {
 
     describe("with state set in the constructor", () => {
         beforeEach(() => {
-            set_state_on_construct = {frodo:true};
+            set_state_on_construct = { frodo: true };
         });
-        
+
         afterEach(() => {
             set_state_on_construct = undefined;
         });
-        
+
         it("doesn't call getState", () => {
             jsx.patch(node, () => {
                 jsx.elementVoid(lifecycle as any);
             });
             let vnode = node["__reactiv_view_node"].kids[0];
-           
+
             expect(vnode.component.state.frodo).toBe(true);
         });
     });
-    
+
     describe("with state not set in the constructor", () => {
         beforeEach(() => {
-            set_state_on_getState = {frodo:true};
+            set_state_on_getState = { frodo: true };
         });
-        
+
         afterEach(() => {
             set_state_on_getState = undefined;
         });
-        
+
         it("calls getState", () => {
             jsx.patch(node, () => {
                 jsx.elementVoid(lifecycle as any);
             });
             let vnode = node["__reactiv_view_node"].kids[0];
-           
+
             expect(vnode.component.state.frodo).toBe(true);
         });
     });
-    
+
 
     it("adds event handlers", () => {
         let prevent_click_default = false;
@@ -586,9 +715,8 @@ describe("a patch", () => {
     });
 
     it("deals with keys", () => {
-        jsx.patch(node, () => {
-            jsx.elementVoid("div", "1", null, "id", "iamme");
-        });
+        jsx.patch(node, () =>
+            jsx.elementVoid("div", "1", null, "id", "iamme"));
 
         expect(node.outerHTML).toBe('<div><div id="iamme"></div></div>');
 
@@ -602,37 +730,38 @@ describe("a patch", () => {
     });
 });
 
+
 describe("a render into text", () => {
-    it("should not crash", () =>{
+    it("should not crash", () => {
         jsx.patch(null, () => {
             jsx.elementVoid("div", "1", null, "id", "iamme");
         });
     });
-    it("should return a div", () =>{
+    it("should return a div", () => {
         var result = jsx.patch(null, () => {
             jsx.elementVoid("div");
         });
-        
+
         expect(result).toBe("<div></div>");
     });
-    it("should return a div with an id", () =>{
+    it("should return a div with an id", () => {
         var result = jsx.patch(null, () => {
-            jsx.elementVoid("div", null, ["id","uno"]);
-        });
-        
-        expect(result).toBe("<div id=\"uno\"></div>");
-    });
-    
-    it("should return a div with a component", () =>{
-        var result = jsx.patch(null, () => {
-               jsx.elementVoid(important as any, null, null, "importance", 7, "name", "bond, jimmy-bob melon-field bond");
-        });
-        
-        var element = document.createElement("div");
-        var result2 = jsx.patch(element,() => {
-               jsx.elementVoid(important as any, null, null, "importance", 7, "name", "bond, jimmy-bob melon-field bond");
+            jsx.elementVoid("div", null, ["id", "uno"]);
         });
 
-        expect(result).toBe(element.innerHTML);
- });
+        expect(result).toBe("<div id=\"uno\"></div>");
+    });
+
+    it("should return a div with a component", () => {
+        var result = jsx.patch(null, () => {
+            jsx.elementVoid(important as any, null, null, "importance", 7, "name", "bond, jimmy-bob melon-field bond");
+        });
+
+        var element = document.createElement("div");
+        var result2 = jsx.patch(element, () => {
+            jsx.elementVoid(important as any, null, null, "importance", 7, "name", "bond, jimmy-bob melon-field bond");
+        });
+
+        expect(result).toBe(element.innerHTML, "well this is odd");
+    });
 });
